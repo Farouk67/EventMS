@@ -4,8 +4,6 @@ import com.emma.model.Event;
 import com.emma.util.DatabaseUtil;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Data Access Object for Event entity
@@ -25,13 +23,36 @@ public class EventDAO {
             pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, event.getName());
             pstmt.setString(2, event.getDescription());
-            pstmt.setTimestamp(3, new Timestamp(event.getEventDate().getTime()));
+            
+            // Ensure we handle the date properly
+            java.util.Date eventDate = event.getEventDate();
+            if (eventDate != null) {
+                pstmt.setTimestamp(3, new Timestamp(eventDate.getTime()));
+            } else {
+                pstmt.setTimestamp(3, null);
+            }
+            
             pstmt.setString(4, event.getLocation());
-            pstmt.setInt(5, event.getCreatedBy());
-            pstmt.setInt(6, event.getEventTypeId());
+            
+            // Handle potentially null values
+            if (event.getCreatedBy() != null) {
+                pstmt.setInt(5, event.getCreatedBy());
+            } else {
+                pstmt.setNull(5, java.sql.Types.INTEGER);
+            }
+            
+            if (event.getEventTypeId() != null) {
+                pstmt.setInt(6, event.getEventTypeId());
+            } else {
+                pstmt.setNull(6, java.sql.Types.INTEGER);
+            }
+            
             pstmt.setInt(7, event.getCapacity());
-            pstmt.setTimestamp(8, new Timestamp(event.getCreatedAt().getTime()));
-            pstmt.setTimestamp(9, new Timestamp(event.getUpdatedAt().getTime()));
+            
+            // Set timestamps or current time if null
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            pstmt.setTimestamp(8, event.getCreatedAt() != null ? event.getCreatedAt() : now);
+            pstmt.setTimestamp(9, event.getUpdatedAt() != null ? event.getUpdatedAt() : now);
             
             int affectedRows = pstmt.executeUpdate();
             
@@ -64,11 +85,26 @@ public class EventDAO {
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, event.getName());
             pstmt.setString(2, event.getDescription());
-            pstmt.setTimestamp(3, new Timestamp(event.getEventDate().getTime()));
+            
+            // Ensure we handle the date properly
+            java.util.Date eventDate = event.getEventDate();
+            if (eventDate != null) {
+                pstmt.setTimestamp(3, new Timestamp(eventDate.getTime()));
+            } else {
+                pstmt.setTimestamp(3, null);
+            }
+            
             pstmt.setString(4, event.getLocation());
-            pstmt.setInt(5, event.getEventTypeId());
+            
+            // Handle potentially null values
+            if (event.getEventTypeId() != null) {
+                pstmt.setInt(5, event.getEventTypeId());
+            } else {
+                pstmt.setNull(5, java.sql.Types.INTEGER);
+            }
+            
             pstmt.setInt(6, event.getCapacity());
-            pstmt.setTimestamp(7, new Timestamp(new java.util.Date().getTime()));
+            pstmt.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
             pstmt.setInt(8, event.getId());
             
             int affectedRows = pstmt.executeUpdate();
@@ -79,6 +115,7 @@ public class EventDAO {
     }
     
     public boolean deleteEvent(int eventId) throws SQLException {
+        // This method doesn't need changes as it doesn't interact with Event objects
         Connection conn = null;
         PreparedStatement pstmt = null;
         
@@ -127,12 +164,18 @@ public class EventDAO {
     }
     
     private Event mapResultSetToEvent(ResultSet rs) throws SQLException {
-        Event event = new Event(0, null, null, null, null, null, 0);
+        Event event = new Event();
         
         event.setId(rs.getInt("id"));
         event.setName(rs.getString("name"));
         event.setDescription(rs.getString("description"));
-        event.setEventDate(rs.getTimestamp("event_date"));
+        
+        Timestamp eventDateTimestamp = rs.getTimestamp("event_date");
+        if (eventDateTimestamp != null) {
+            event.setEventDate(new Date(eventDateTimestamp.getTime()));
+            event.setDate(new Date(eventDateTimestamp.getTime())); // Keep both date fields in sync
+        }
+        
         event.setLocation(rs.getString("location"));
         event.setCreatedBy(rs.getInt("created_by"));
         event.setEventTypeId(rs.getInt("event_type_id"));

@@ -155,7 +155,19 @@ public class UserDAO {
             
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
-                    Event event = new Event(userId, sql, null, sql, sql, sql, userId);
+                    Event event = new Event(
+                        resultSet.getInt("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("description"),
+                        resultSet.getString("type"),
+                        resultSet.getString("location"),
+                        resultSet.getDate("date"),  // Ensure this column is stored as a Date in your DB
+                        resultSet.getInt("attendee_count"),
+                        resultSet.getInt("capacity"),
+                        resultSet.getBoolean("registration_required"),
+                        resultSet.getDouble("ticket_price"),
+                        resultSet.getInt("organizer_id")
+                    );
                     event.setId(resultSet.getInt("id"));
                     event.setName(resultSet.getString("name"));
                     event.setDate(resultSet.getDate("date"));

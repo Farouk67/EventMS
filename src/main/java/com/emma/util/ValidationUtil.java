@@ -35,7 +35,7 @@ public class ValidationUtil {
         sdf.setLenient(false);
         
         try {
-            Date date = sdf.parse(dateStr);
+            sdf.parse(dateStr);  // No need to store the result in a variable
             return true;
         } catch (ParseException e) {
             return false;

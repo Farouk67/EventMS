@@ -1,53 +1,83 @@
 package com.emma.model;
 
-import java.sql.Date;
+import java.util.Date;
 import java.sql.Timestamp;
-import java.util.Objects;
 
+/**
+ * Model class representing an Event
+ */
 public class Event {
     private int id;
     private String name;
-    private Date date;
-    private String location;
     private String description;
-    private String type;
-    private int organizerId;
+    private String type; // For compatibility with UserDAO
+    private String location;
+    private Date date; // For compatibility with UserDAO
+    private Date eventDate; // For compatibility with EventDAO
     private int attendeeCount;
     private int capacity;
+    private boolean registrationRequired;
+    private double ticketPrice;
+    private Integer organizerId; // For compatibility with UserDAO
+    private Integer createdBy; // For compatibility with EventDAO
+    private Integer eventTypeId;
+    private String eventTypeName;
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
     
     // Default constructor
-    public Event(int id2, String name2, String type2, java.util.Date date2, java.util.Date date3, String location2, String description2, int capacity2, int attendees, int userId, String description3, boolean b) {
-        // If necessary, initialize fields based on your project requirements
-    }
-    
-    // Parameterized constructor
-    public Event(int id, String name, Date date, String location, String description, String type, int organizerId) {
-        this.id = id;
-        this.name = name;
-        this.date = date;
-        this.location = location;
-        this.description = description;
-        this.type = type;
-        this.organizerId = organizerId;
+    public Event() {
         this.attendeeCount = 0;
-        this.capacity = 100; // Default capacity
     }
     
-    // Full constructor with attendee count and capacity
-    public Event(int id, String name, Date date, String location, String description, String type, 
-                 int organizerId, int attendeeCount, int capacity) {
-        this.id = id;
+    // Constructor with basic information
+    public Event(String name, String description, String type, String location, Date date) {
         this.name = name;
-        this.date = date;
-        this.location = location;
         this.description = description;
         this.type = type;
-        this.organizerId = organizerId;
+        this.location = location;
+        this.date = date;
+        this.eventDate = date; // Sync both date fields
+        this.attendeeCount = 0;
+    }
+    
+    // Constructor for UserDAO compatibility
+    public Event(int id, String name, String description, String type, String location, 
+                Date date, int attendeeCount, int capacity, boolean registrationRequired, 
+                double ticketPrice, Integer organizerId) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.type = type;
+        this.location = location;
+        this.date = date;
+        this.eventDate = date; // Sync both date fields
         this.attendeeCount = attendeeCount;
         this.capacity = capacity;
+        this.registrationRequired = registrationRequired;
+        this.ticketPrice = ticketPrice;
+        this.organizerId = organizerId;
+        this.createdBy = organizerId; // Sync both organizer fields
     }
     
-    // Getters and Setters
+    // Constructor for EventDAO compatibility
+    public Event(int id, String name, String description, Date eventDate, 
+                String location, Integer createdBy, Integer eventTypeId, int capacity) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.eventDate = eventDate;
+        this.date = eventDate; // Sync both date fields
+        this.location = location;
+        this.createdBy = createdBy;
+        this.organizerId = createdBy; // Sync both organizer fields
+        this.eventTypeId = eventTypeId;
+        this.capacity = capacity;
+        this.createdAt = new Timestamp(System.currentTimeMillis());
+        this.updatedAt = new Timestamp(System.currentTimeMillis());
+    }
+    
+    // Original getters and setters
     
     public int getId() {
         return id;
@@ -63,22 +93,6 @@ public class Event {
     
     public void setName(String name) {
         this.name = name;
-    }
-    
-    public Date getDate() {
-        return date;
-    }
-    
-    public void setDate(Date date) {
-        this.date = date;
-    }
-    
-    public String getLocation() {
-        return location;
-    }
-    
-    public void setLocation(String location) {
-        this.location = location;
     }
     
     public String getDescription() {
@@ -97,12 +111,21 @@ public class Event {
         this.type = type;
     }
     
-    public int getOrganizerId() {
-        return organizerId;
+    public String getLocation() {
+        return location;
     }
     
-    public void setOrganizerId(int organizerId) {
-        this.organizerId = organizerId;
+    public void setLocation(String location) {
+        this.location = location;
+    }
+    
+    public Date getDate() {
+        return date;
+    }
+    
+    public void setDate(Date date) {
+        this.date = date;
+        this.eventDate = date; // Keep both date fields in sync
     }
     
     public int getAttendeeCount() {
@@ -121,191 +144,86 @@ public class Event {
         this.capacity = capacity;
     }
     
-    // Methods to manage attendees
-    public boolean addAttendee() {
-        if (attendeeCount < capacity) {
-            attendeeCount++;
-            return true;
-        }
-        return false; // Event is at capacity
+    public boolean isRegistrationRequired() {
+        return registrationRequired;
     }
     
-    public boolean removeAttendee() {
-        if (attendeeCount > 0) {
-            attendeeCount--;
-            return true;
-        }
-        return false; // No attendees to remove
+    public void setRegistrationRequired(boolean registrationRequired) {
+        this.registrationRequired = registrationRequired;
     }
     
-    public boolean isAtCapacity() {
-        return attendeeCount >= capacity;
+    public double getTicketPrice() {
+        return ticketPrice;
     }
     
-    public double getOccupancyRate() {
-        return (double) attendeeCount / capacity * 100;
+    public void setTicketPrice(double ticketPrice) {
+        this.ticketPrice = ticketPrice;
     }
     
-    // toString, equals, and hashCode methods
+    public Integer getOrganizerId() {
+        return organizerId;
+    }
     
+    public void setOrganizerId(Integer organizerId) {
+        this.organizerId = organizerId;
+        this.createdBy = organizerId; // Keep both organizer fields in sync
+    }
+    
+    // New getters and setters for EventDAO compatibility
+    
+    public Date getEventDate() {
+        return eventDate;
+    }
+    
+    public void setEventDate(Date eventDate) {
+        this.eventDate = eventDate;
+        this.date = eventDate; // Keep both date fields in sync
+    }
+    
+    public Integer getCreatedBy() {
+        return createdBy;
+    }
+    
+    public void setCreatedBy(Integer createdBy) {
+        this.createdBy = createdBy;
+        this.organizerId = createdBy; // Keep both organizer fields in sync
+    }
+    
+    public Integer getEventTypeId() {
+        return eventTypeId;
+    }
+    
+    public void setEventTypeId(Integer eventTypeId) {
+        this.eventTypeId = eventTypeId;
+    }
+    
+    public String getEventTypeName() {
+        return eventTypeName;
+    }
+    
+    public void setEventTypeName(String eventTypeName) {
+        this.eventTypeName = eventTypeName;
+    }
+    
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+    
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+    
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
+    }
+    
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     @Override
     public String toString() {
-        return "Event{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", date=" + date +
-                ", location='" + location + '\'' +
-                ", description='" + description + '\'' +
-                ", type='" + type + '\'' +
-                ", organizerId=" + organizerId +
-                ", attendeeCount=" + attendeeCount +
-                ", capacity=" + capacity +
-                '}';
+        return "Event [id=" + id + ", name=" + name + ", type=" + type + ", location=" + location 
+                + ", date=" + date + ", attendeeCount=" + attendeeCount + ", organizerId=" + organizerId + "]";
     }
-    
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Event event = (Event) o;
-        return id == event.id &&
-                organizerId == event.organizerId &&
-                Objects.equals(name, event.name) &&
-                Objects.equals(date, event.date) &&
-                Objects.equals(location, event.location) &&
-                Objects.equals(type, event.type);
-    }
-    
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, date, location, type, organizerId);
-    }
-    
-    // Methods for event validation
-    
-    public boolean isValid() {
-        return name != null && !name.trim().isEmpty() &&
-                date != null &&
-                location != null && !location.trim().isEmpty() &&
-                description != null &&
-                type != null && !type.trim().isEmpty();
-    }
-    
-    public boolean isDateValid() {
-        if (date == null) {
-            return false;
-        }
-        // Check if the date is in the future
-        Date currentDate = new Date(System.currentTimeMillis());
-        return date.after(currentDate);
-    }
-    
-    // Additional methods that might have been auto-generated with TODOs
-    
-    public String getFormattedDate() {
-        return date != null ? date.toString() : "";
-    }
-    
-    public String getShortDescription() {
-        if (description == null || description.length() <= 100) {
-            return description;
-        }
-        return description.substring(0, 97) + "...";
-    }
-    
-    public boolean isOrganizedBy(int userId) {
-        return organizerId == userId;
-    }
-    
-    public boolean hasSpaceForAttendees(int count) {
-        return (attendeeCount + count) <= capacity;
-    }
-    
-    public void updateAttendeeCount(int newCount) {
-        if (newCount >= 0 && newCount <= capacity) {
-            this.attendeeCount = newCount;
-        }
-    }
-    
-    public boolean isSameType(String eventType) {
-        return type != null && type.equalsIgnoreCase(eventType);
-    }
-    
-    public boolean isInLocation(String searchLocation) {
-        return location != null && location.toLowerCase().contains(searchLocation.toLowerCase());
-    }
-
-    public int getAttendees() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAttendees'");
-    }
-
-    public int getUserId() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getUserId'");
-    }
-
-    public Timestamp getEventDate() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getEventDate'");
-    }
-
-    public int getEventTypeId() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getEventTypeId'");
-    }
-
-    public int getCreatedBy() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCreatedBy'");
-    }
-
-    public Timestamp getCreatedAt() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCreatedAt'");
-    }
-
-    public Timestamp getUpdatedAt() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getUpdatedAt'");
-    }
-
-    public void setEventDate(Timestamp timestamp) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setEventDate'");
-    }
-
-    public void setCreatedBy(int int1) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setCreatedBy'");
-    }
-
-    public void setEventTypeId(int int1) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setEventTypeId'");
-    }
-
-    public void setEventTypeName(String string) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setEventTypeName'");
-    }
-
-    public void setCreatedAt(Timestamp timestamp) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setCreatedAt'");
-    }
-
-    public void setUpdatedAt(Timestamp timestamp) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setUpdatedAt'");
-    }
-
-    public String getEventTypeName() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getEventTypeName'");
-    }
-
-    // Removed duplicate method and unnecessary TODO methods
-    
-    // Removed getAttendees, getUserId, and event date-related methods
 }

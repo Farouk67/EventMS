@@ -135,7 +135,7 @@ public class FeatureExtractor {
             Instance instance = extractFeatures(event, dataset);
             
             // Set the class value (event type)
-            instance.setValue(dataset.classAttribute(), event.getEventTypeName());
+            instance.setValue(dataset.classAttribute(), event.getType());
             
             // Add the instance to the dataset
             dataset.add(instance);

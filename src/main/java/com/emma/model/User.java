@@ -45,8 +45,16 @@ public class User {
         this.rsvps = new ArrayList<>();
     }
     
-    public User(int i, String username2, String email2, String password2) {
-        //TODO Auto-generated constructor stub
+    public User(int id, String username, String email, String password) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.registeredDate = new Date();
+        this.isActive = true;
+        this.role = "user";
+        this.createdEvents = new ArrayList<>();
+        this.rsvps = new ArrayList<>();
     }
 
     // Getters and Setters

@@ -137,53 +137,54 @@ public class EventController extends HttpServlet {
     }
     
     private void insertEvent(HttpServletRequest request, HttpServletResponse response) 
-            throws SQLException, IOException, ParseException {
-        String name = request.getParameter("name");
-        String type = request.getParameter("type");
-        String dateStr = request.getParameter("date");
-        String location = request.getParameter("location");
-        String description = request.getParameter("description");
-        int capacity = Integer.parseInt(request.getParameter("capacity"));
-        
-        // Data validation
-        validateEventData(name, dateStr, location);
-        
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = sdf.parse(dateStr);
-        
-        HttpSession session = request.getSession();
-        int userId = (Integer) session.getAttribute("userId");
-        
-        Event newEvent = new Event(0, name, type, date, date, location, description, capacity, 0, userId, description, false);
-        eventService.createEvent(newEvent);
-        response.sendRedirect("list");
-    }
-    
+    throws SQLException, IOException, ParseException {
+String name = request.getParameter("name");
+String type = request.getParameter("type");
+String dateStr = request.getParameter("date");
+String location = request.getParameter("location");
+String description = request.getParameter("description");
+int capacity = Integer.parseInt(request.getParameter("capacity"));
+
+// Data validation
+validateEventData(name, dateStr, location);
+
+SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+Date date = sdf.parse(dateStr);
+
+HttpSession session = request.getSession();
+int userId = (Integer) session.getAttribute("userId");
+
+// Create event with the correct constructor parameters
+Event newEvent = new Event(0, name, description, type, location, date, 0, capacity, false, 0.0, userId);
+eventService.createEvent(newEvent);
+response.sendRedirect("list");
+}
     private void updateEvent(HttpServletRequest request, HttpServletResponse response) 
-            throws SQLException, IOException, ParseException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        String name = request.getParameter("name");
-        String type = request.getParameter("type");
-        String dateStr = request.getParameter("date");
-        String location = request.getParameter("location");
-        String description = request.getParameter("description");
-        int capacity = Integer.parseInt(request.getParameter("capacity"));
-        
-        // Data validation
-        validateEventData(name, dateStr, location);
-        
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = sdf.parse(dateStr);
-        
-        // Get the current attendance count to preserve it
-        Event existingEvent = eventService.getEvent(id);
-        int attendees = existingEvent.getAttendees();
-        int userId = existingEvent.getUserId();
-        
-        Event event = new Event(id, name, type, date, date, location, description, capacity, attendees, userId, description, false);
-        eventService.updateEvent(event);
-        response.sendRedirect("list");
-    }
+    throws SQLException, IOException, ParseException {
+int id = Integer.parseInt(request.getParameter("id"));
+String name = request.getParameter("name");
+String type = request.getParameter("type");
+String dateStr = request.getParameter("date");
+String location = request.getParameter("location");
+String description = request.getParameter("description");
+int capacity = Integer.parseInt(request.getParameter("capacity"));
+
+// Data validation
+validateEventData(name, dateStr, location);
+
+SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+Date date = sdf.parse(dateStr);
+
+// Get the current attendance count to preserve it
+Event existingEvent = eventService.getEvent(id);
+int attendees = existingEvent.getAttendeeCount(); // Changed from getAttendees()
+Integer organizerId = existingEvent.getOrganizerId(); // Changed from getUserId()
+
+// Create event with the correct constructor parameters
+Event event = new Event(id, name, description, type, location, date, attendees, capacity, false, 0.0, organizerId);
+eventService.updateEvent(event);
+response.sendRedirect("list");
+}
     
     private void deleteEvent(HttpServletRequest request, HttpServletResponse response) 
             throws SQLException, IOException {

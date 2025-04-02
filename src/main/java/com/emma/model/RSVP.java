@@ -34,8 +34,13 @@ public class RSVP {
         this.notes = notes;
     }
     
-    public RSVP(int i, Integer userId2, int eventId2) {
-        //TODO Auto-generated constructor stub
+    public RSVP(int id, Integer userId, int eventId) {
+        this.id = id;
+        this.userId = userId;
+        this.eventId = eventId;
+        this.respondedAt = new Date();
+      
+        this.status = "pending"; // or some other default value
     }
 
     // Getters and Setters
