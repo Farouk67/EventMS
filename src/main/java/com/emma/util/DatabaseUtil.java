@@ -13,12 +13,16 @@ public class DatabaseUtil {
     private static final String JDBC_URL = "jdbc:mysql://localhost:3306/emma_events";
     private static final String JDBC_USER = "root";
     private static final String JDBC_PASSWORD = "password";
+    private static boolean driverLoaded = false;
     
     static {
         try {
             // Load the JDBC driver
             Class.forName("com.mysql.cj.jdbc.Driver");
+            driverLoaded = true;
+            System.out.println("JDBC driver loaded successfully");
         } catch (ClassNotFoundException e) {
+            System.err.println("WARNING: Failed to load JDBC driver: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -30,7 +34,33 @@ public class DatabaseUtil {
      * @throws SQLException if a database access error occurs
      */
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
+        if (!driverLoaded) {
+            throw new SQLException("JDBC driver not loaded");
+        }
+        try {
+            return DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
+        } catch (SQLException e) {
+            System.err.println("WARNING: Failed to get database connection: " + e.getMessage());
+            throw e;
+        }
+    }
+    
+    /**
+     * Checks if the database is available
+     * 
+     * @return true if the database is available
+     */
+    public static boolean isDatabaseAvailable() {
+        if (!driverLoaded) {
+            return false;
+        }
+        
+        try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD)) {
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Database is not available: " + e.getMessage());
+            return false;
+        }
     }
     
     /**

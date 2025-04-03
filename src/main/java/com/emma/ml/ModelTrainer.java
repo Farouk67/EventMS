@@ -5,6 +5,7 @@ import weka.classifiers.Classifier;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
+import weka.core.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,10 +29,12 @@ public class ModelTrainer {
         // Initialize the classifier (using RandomForest as it works well for categorical data)
         RandomForest classifier = new RandomForest();
         
-        // Configure the classifier
-        classifier.setNumTrees(100);
-        classifier.setMaxDepth(0); // unlimited
-        classifier.setNumFeatures(0); // 0 means log_2(M)+1, where M is the number of attributes
+        // Configure the classifier using options
+        // -I: number of trees to build
+        // -K: number of features to consider (0 means log_2(numFeatures) + 1)
+        // -depth: maximum depth of the trees (0 means unlimited)
+        String[] options = Utils.splitOptions("-I 100 -K 0 -depth 0");
+        classifier.setOptions(options);
         
         // Build the classifier
         classifier.buildClassifier(trainingData);

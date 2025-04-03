@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Page - Event Management Platform</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #f9f9f9;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #007bff;
+            margin-top: 0;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .links {
+            margin-top: 20px;
+        }
+        .links a {
+            display: inline-block;
+            margin-right: 15px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
+        .server-info {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Event Management Platform - Test Page</h1>
+        <p class="success">If you can see this page, your web application is successfully deployed!</p>
+        
+        <p>This is a simple test page to verify that your application is properly deployed to Tomcat.</p>
+        
+        <div class="links">
+            <h3>Try accessing these pages:</h3>
+            <a href="index.jsp">Homepage (index.jsp)</a>
+            <a href="events/list">Event List</a>
+            <a href="users/login">Login Page</a>
+        </div>
+        
+        <div class="server-info">
+            <h3>Server Information:</h3>
+            <p>Current time: <script>document.write(new Date().toLocaleString());</script></p>
+            <p>Context Path: /emma</p>
+        </div>
+    </div>
+</body>
+</html>
