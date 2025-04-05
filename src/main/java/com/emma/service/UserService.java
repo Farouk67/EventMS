@@ -18,16 +18,12 @@ import java.util.stream.Collectors;
 public class UserService {
     
     private UserRepository userRepository;
-    private EventService eventService;
-    private RSVPService rsvpService;
     
     /**
      * Constructor
      */
     public UserService() {
         this.userRepository = new UserRepository();
-        this.eventService = new EventService();
-        this.rsvpService = new RSVPService();
     }
     
     /**
@@ -54,6 +50,9 @@ public class UserService {
             return new ArrayList<>();
         }
         
+        // Get the event service from the factory
+        EventService eventService = ServiceFactory.getEventService();
+        
         // Get all events and filter by organizer ID
         List<Event> allEvents = eventService.getAllEvents();
         return allEvents.stream()
@@ -71,6 +70,10 @@ public class UserService {
         if (userId == null) {
             return new ArrayList<>();
         }
+        
+        // Get the services from the factory
+        RSVPService rsvpService = ServiceFactory.getRsvpService();
+        EventService eventService = ServiceFactory.getEventService();
         
         // Get all of the user's RSVPs
         List<RSVP> userRSVPs = rsvpService.findRSVPsByUserId(userId);

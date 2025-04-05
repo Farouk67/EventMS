@@ -9,7 +9,6 @@ import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.emma.model.Event;
 import com.emma.service.EventService;
 
-@WebServlet("/search")
+
 public class SearchController extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private EventService eventService;
@@ -42,7 +41,7 @@ public class SearchController extends HttpServlet {
                 List<String> locations = eventService.getAllLocations();
                 request.setAttribute("locations", locations);
                 
-                RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/search-form.jsp");
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/events/search.jsp");
                 dispatcher.forward(request, response);
                 return;
             }
@@ -94,7 +93,7 @@ public class SearchController extends HttpServlet {
         request.setAttribute("selectedLocation", location);
         request.setAttribute("selectedDate", dateStr);
         
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/search-results.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/events/search.jsp");
         dispatcher.forward(request, response);
     }
 }

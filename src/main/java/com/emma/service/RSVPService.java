@@ -11,11 +11,19 @@ public class RSVPService {
     private EventService eventService;
     
     /**
-     * Constructor
+     * Default constructor - does not initialize EventService
      */
     public RSVPService() {
         this.rsvpRepository = new RSVPRepository();
-        this.eventService = new EventService();
+    }
+    
+    /**
+     * Sets the EventService - to be used after construction to avoid circular dependency
+     * 
+     * @param eventService The EventService to use
+     */
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
     
     /**
@@ -47,7 +55,9 @@ public class RSVPService {
         int rsvpId = rsvpRepository.save(rsvp);
         
         // Update event attendee count
-        eventService.incrementAttendeeCount(rsvp.getEventId());
+        if (eventService != null) {
+            eventService.incrementAttendeeCount(rsvp.getEventId());
+        }
         
         return rsvpId;
     }
@@ -62,7 +72,9 @@ public class RSVPService {
         RSVP rsvp = findRSVPByUserAndEvent(userId, eventId);
         if (rsvp != null) {
             rsvpRepository.delete(rsvp.getId());
-            eventService.decrementAttendeeCount(eventId);
+            if (eventService != null) {
+                eventService.decrementAttendeeCount(eventId);
+            }
         }
     }
     
@@ -142,7 +154,9 @@ public class RSVPService {
         RSVP rsvp = findRSVPById(id);
         if (rsvp != null) {
             rsvpRepository.delete(id);
-            eventService.decrementAttendeeCount(rsvp.getEventId());
+            if (eventService != null) {
+                eventService.decrementAttendeeCount(rsvp.getEventId());
+            }
         }
     }
 }

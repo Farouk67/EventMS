@@ -4,42 +4,47 @@
 <jsp:include page="../common/header.jsp" />
 <jsp:include page="../common/navigation.jsp" />
 
-<div class="container">
-    <div class="page-header">
-        <h1>Login</h1>
-    </div>
-    
-    <div class="form-container">
-        <c:if test="${not empty errorMessage}">
-            <div class="alert alert-danger">
-                ${errorMessage}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Login</h4>
+                </div>
+                <div class="card-body">
+                    <c:if test="${not empty errorMessage}">
+                        <div class="alert alert-danger">
+                            ${errorMessage}
+                        </div>
+                    </c:if>
+                    
+                    <c:if test="${not empty message}">
+                        <div class="alert alert-success">
+                            ${message}
+                        </div>
+                    </c:if>
+                    
+                    <form action="${pageContext.request.contextPath}/users/processLogin" method="post">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                            <input type="text" id="username" name="username" class="form-control" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                            <input type="password" id="password" name="password" class="form-control" required>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-3 text-center">
+                        <p>Don't have an account? <a href="${pageContext.request.contextPath}/users/register">Register here</a></p>
+                    </div>
+                </div>
             </div>
-        </c:if>
-        
-        <c:if test="${not empty message}">
-            <div class="alert alert-success">
-                ${message}
-            </div>
-        </c:if>
-        
-        <form action="${pageContext.request.contextPath}/users/processLogin" method="post">
-            <div class="form-group">
-                <label for="username">Username <span class="required">*</span></label>
-                <input type="text" id="username" name="username" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="password">Password <span class="required">*</span></label>
-                <input type="password" id="password" name="password" class="form-control" required>
-            </div>
-            
-            <div class="form-group form-buttons">
-                <button type="submit" class="btn btn-primary">Login</button>
-            </div>
-        </form>
-        
-        <div class="form-footer">
-            <p>Don't have an account? <a href="${pageContext.request.contextPath}/users/register">Register here</a></p>
         </div>
     </div>
 </div>

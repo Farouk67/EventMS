@@ -31,17 +31,22 @@
         <url-pattern>/events/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+    <servlet-name>EventController</servlet-name>
+    <url-pattern>/events/api/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>RSVPController</servlet-name>
         <url-pattern>/rsvp/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>SearchController</servlet-name>
-        <url-pattern>/search</url-pattern>
+        <url-pattern>/search/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>UserController</servlet-name>
         <url-pattern>/users/*</url-pattern>
     </servlet-mapping>
+    
 
     <!-- Jersey REST Service Configuration -->
     <servlet>
@@ -102,11 +107,5 @@
         <location>/WEB-INF/jsp/common/error-generic.jsp</location>
     </error-page>
 
-    <!-- Database Connection Resource Reference -->
-    <resource-ref>
-        <description>MySQL Database Connection</description>
-        <res-ref-name>jdbc/EventManagementDB</res-ref-name>
-        <res-type>javax.sql.DataSource</res-type>
-        <res-auth>Container</res-auth>
-    </resource-ref>
+    
 </web-app>

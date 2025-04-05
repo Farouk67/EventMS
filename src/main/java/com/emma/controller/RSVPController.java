@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,8 +12,8 @@ import javax.servlet.http.HttpSession;
 import com.emma.model.RSVP;
 import com.emma.service.RSVPService;
 import com.emma.service.EventService;
+import com.emma.service.ServiceFactory;
 
-@WebServlet("/rsvp/*")
 public class RSVPController extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private RSVPService rsvpService;
@@ -22,8 +21,21 @@ public class RSVPController extends HttpServlet {
     
     public RSVPController() {
         super();
-        rsvpService = new RSVPService();
-        eventService = new EventService();
+        // Use the ServiceFactory to get service instances
+        this.rsvpService = ServiceFactory.getRsvpService();
+        this.eventService = ServiceFactory.getEventService();
+    }
+    
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        // Double-check that services are initialized
+        if (rsvpService == null) {
+            rsvpService = ServiceFactory.getRsvpService();
+        }
+        if (eventService == null) {
+            eventService = ServiceFactory.getEventService();
+        }
     }
     
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
@@ -79,9 +91,6 @@ public class RSVPController extends HttpServlet {
         RSVP rsvp = new RSVP(0, userId, eventId);
         rsvpService.createRSVP(rsvp);
         
-        // Update event attendee count
-        eventService.incrementAttendeeCount(eventId);
-        
         response.sendRedirect(request.getContextPath() + "/events/details?id=" + eventId);
     }
     
@@ -105,9 +114,6 @@ public class RSVPController extends HttpServlet {
         
         // Delete RSVP
         rsvpService.deleteRSVP(userId, eventId);
-        
-        // Update event attendee count
-        eventService.decrementAttendeeCount(eventId);
         
         response.sendRedirect(request.getContextPath() + "/events/details?id=" + eventId);
     }

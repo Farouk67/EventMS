@@ -9,7 +9,6 @@ import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,15 +16,27 @@ import javax.servlet.http.HttpSession;
 
 import com.emma.model.Event;
 import com.emma.service.EventService;
+import com.emma.service.ServiceFactory;
+import com.google.gson.Gson;
 
-@WebServlet("/events/*")
+
 public class EventController extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private EventService eventService;
     
     public EventController() {
         super();
-        eventService = new EventService();
+        // Use the ServiceFactory to get the EventService instance
+        eventService = ServiceFactory.getEventService();
+    }
+    
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        // Double-check that the service is initialized
+        if (eventService == null) {
+            eventService = ServiceFactory.getEventService();
+        }
     }
     
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
@@ -60,6 +71,9 @@ public class EventController extends HttpServlet {
                         break;
                     case "/byType":
                         listEventsByType(request, response);
+                        break;
+                    case "/api/upcoming":
+                        getUpcomingEvents(request, response);
                         break;
                     default:
                         listEvents(request, response);
@@ -103,7 +117,7 @@ public class EventController extends HttpServlet {
         RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/event-list.jsp");
         dispatcher.forward(request, response);
     }
-    
+
     private void showNewForm(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException, SQLException {
         List<String> eventTypes = eventService.getAllEventTypes();
@@ -137,60 +151,86 @@ public class EventController extends HttpServlet {
     }
     
     private void insertEvent(HttpServletRequest request, HttpServletResponse response) 
-    throws SQLException, IOException, ParseException {
-String name = request.getParameter("name");
-String type = request.getParameter("type");
-String dateStr = request.getParameter("date");
-String location = request.getParameter("location");
-String description = request.getParameter("description");
-int capacity = Integer.parseInt(request.getParameter("capacity"));
+            throws SQLException, IOException, ParseException {
+        String name = request.getParameter("name");
+        String type = request.getParameter("type");
+        String dateStr = request.getParameter("date");
+        String location = request.getParameter("location");
+        String description = request.getParameter("description");
+        int capacity = Integer.parseInt(request.getParameter("capacity"));
 
-// Data validation
-validateEventData(name, dateStr, location);
+        // Data validation
+        validateEventData(name, dateStr, location);
 
-SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-Date date = sdf.parse(dateStr);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = sdf.parse(dateStr);
 
-HttpSession session = request.getSession();
-int userId = (Integer) session.getAttribute("userId");
+        HttpSession session = request.getSession();
+        int userId = (Integer) session.getAttribute("userId");
 
-// Create event with the correct constructor parameters
-Event newEvent = new Event(0, name, description, type, location, date, 0, capacity, false, 0.0, userId);
-eventService.createEvent(newEvent);
-response.sendRedirect("list");
-}
+        // Create event with the correct constructor parameters
+        Event newEvent = new Event(0, name, description, type, location, date, 0, capacity, false, 0.0, userId);
+        eventService.createEvent(newEvent);
+        response.sendRedirect("list");
+    }
+    
     private void updateEvent(HttpServletRequest request, HttpServletResponse response) 
-    throws SQLException, IOException, ParseException {
-int id = Integer.parseInt(request.getParameter("id"));
-String name = request.getParameter("name");
-String type = request.getParameter("type");
-String dateStr = request.getParameter("date");
-String location = request.getParameter("location");
-String description = request.getParameter("description");
-int capacity = Integer.parseInt(request.getParameter("capacity"));
+            throws SQLException, IOException, ParseException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        String name = request.getParameter("name");
+        String type = request.getParameter("type");
+        String dateStr = request.getParameter("date");
+        String location = request.getParameter("location");
+        String description = request.getParameter("description");
+        int capacity = Integer.parseInt(request.getParameter("capacity"));
 
-// Data validation
-validateEventData(name, dateStr, location);
+        // Data validation
+        validateEventData(name, dateStr, location);
 
-SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-Date date = sdf.parse(dateStr);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = sdf.parse(dateStr);
 
-// Get the current attendance count to preserve it
-Event existingEvent = eventService.getEvent(id);
-int attendees = existingEvent.getAttendeeCount(); // Changed from getAttendees()
-Integer organizerId = existingEvent.getOrganizerId(); // Changed from getUserId()
+        // Get the current attendance count to preserve it
+        Event existingEvent = eventService.getEvent(id);
+        int attendees = existingEvent.getAttendeeCount();
+        Integer organizerId = existingEvent.getOrganizerId();
 
-// Create event with the correct constructor parameters
-Event event = new Event(id, name, description, type, location, date, attendees, capacity, false, 0.0, organizerId);
-eventService.updateEvent(event);
-response.sendRedirect("list");
-}
+        // Create event with the correct constructor parameters
+        Event event = new Event(id, name, description, type, location, date, attendees, capacity, false, 0.0, organizerId);
+        eventService.updateEvent(event);
+        response.sendRedirect("list");
+    }
     
     private void deleteEvent(HttpServletRequest request, HttpServletResponse response) 
             throws SQLException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
         eventService.deleteEvent(id);
         response.sendRedirect("list");
+    }
+    
+    private void getUpcomingEvents(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        try {
+            List<Event> upcomingEvents = eventService.getUpcomingEvents();
+            
+            // Convert to JSON
+            Gson gson = new Gson();
+            String jsonEvents = gson.toJson(upcomingEvents);
+            
+            // Set response headers
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            
+            // Write JSON response
+            response.getWriter().write(jsonEvents);
+        } catch (Exception ex) {
+            // Log the error
+            ex.printStackTrace();
+            
+            // Send error response
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"error\": \"Failed to fetch upcoming events\"}");
+        }
     }
     
     private void validateEventData(String name, String dateStr, String location) throws ParseException {
@@ -207,8 +247,4 @@ response.sendRedirect("list");
         sdf.setLenient(false);
         sdf.parse(dateStr);
     }
-    
-
-
 }
-

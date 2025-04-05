@@ -1,5 +1,9 @@
 package com.emma.repository;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -7,6 +11,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.emma.model.Event;
+import com.emma.util.DatabaseUtil;
 
 /**
  * Repository class to handle Event data operations
@@ -25,6 +30,45 @@ public class EventRepository {
     public List<Event> findAll() {
         return new ArrayList<>(events);
     }
+
+    public List<Event> findUpcomingEvents() {
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
+    List<Event> upcomingEvents = new ArrayList<>();
+    
+    try {
+        conn = DatabaseUtil.getConnection();
+        String sql = "SELECT * FROM events WHERE event_date > CURRENT_DATE ORDER BY event_date LIMIT 6";
+        
+        pstmt = conn.prepareStatement(sql);
+        rs = pstmt.executeQuery();
+        
+        while (rs.next()) {
+            Event event = new Event(
+                rs.getInt("id"),
+                rs.getString("name"),
+                rs.getString("description"),
+                rs.getString("type"),
+                rs.getString("location"),
+                rs.getDate("event_date"),
+                rs.getInt("attendee_count"),
+                rs.getInt("capacity"),
+                false, // registration required
+                0.0,  // ticket price
+                rs.getInt("organizer_id")
+            );
+            upcomingEvents.add(event);
+        }
+    } catch (SQLException e) {
+        // Log the error
+        e.printStackTrace();
+    } finally {
+        DatabaseUtil.closeResources(conn, pstmt, rs);
+    }
+    
+    return upcomingEvents;
+}
     
     /**
      * Find an event by its ID

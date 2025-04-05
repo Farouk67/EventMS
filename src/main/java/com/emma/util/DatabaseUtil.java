@@ -1,28 +1,52 @@
 package com.emma.util;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Properties;
 
 /**
  * Utility class for database operations
  */
 public class DatabaseUtil {
-    private static final String JDBC_URL = "jdbc:mysql://localhost:3306/emma_events";
-    private static final String JDBC_USER = "root";
-    private static final String JDBC_PASSWORD = "password";
+    private static String JDBC_URL;
+    private static String JDBC_USER;
+    private static String JDBC_PASSWORD;
     private static boolean driverLoaded = false;
+    private static final Properties properties = new Properties();
     
     static {
         try {
+            // Load database properties from file
+            InputStream inputStream = DatabaseUtil.class.getClassLoader().getResourceAsStream("database.properties");
+            
+            if (inputStream != null) {
+                properties.load(inputStream);
+                JDBC_URL = properties.getProperty("jdbc.url", "jdbc:mysql://localhost:3306/emma_events");
+                JDBC_USER = properties.getProperty("jdbc.user", "root");
+                JDBC_PASSWORD = properties.getProperty("jdbc.password", "1234");
+                inputStream.close();
+            } else {
+                // Fallback to default values if properties file not found
+                JDBC_URL = "jdbc:mysql://localhost:3306/emma_events";
+                JDBC_USER = "root";
+                JDBC_PASSWORD = "1234";
+                System.err.println("WARNING: database.properties file not found. Using default values.");
+            }
+            
             // Load the JDBC driver
             Class.forName("com.mysql.cj.jdbc.Driver");
             driverLoaded = true;
             System.out.println("JDBC driver loaded successfully");
         } catch (ClassNotFoundException e) {
             System.err.println("WARNING: Failed to load JDBC driver: " + e.getMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.err.println("WARNING: Failed to load database properties: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -55,7 +79,7 @@ public class DatabaseUtil {
             return false;
         }
         
-        try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD)) {
+        try (Connection conn = getConnection()) {
             return true;
         } catch (SQLException e) {
             System.err.println("Database is not available: " + e.getMessage());

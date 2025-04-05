@@ -22,6 +22,8 @@ public class EventService {
         this.eventRepository = new EventRepository();
     }
     
+    
+    
     /**
      * Retrieves all events from the system
      * 
@@ -151,7 +153,16 @@ public class EventService {
         
         return new ArrayList<>(locations);
     }
-
+    
+    /**
+     * Gets upcoming events
+     * 
+     * @return List of upcoming events
+     */
+    public List<Event> getUpcomingEvents() {
+        return eventRepository.findUpcomingEvents();
+    }
+    
     /**
      * Searches for events based on multiple criteria
      * 

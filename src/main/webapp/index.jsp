@@ -1,92 +1,143 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
 <jsp:include page="WEB-INF/jsp/common/header.jsp" />
 <jsp:include page="WEB-INF/jsp/common/navigation.jsp" />
 
-<div class="hero-section">
+<div class="hero-section bg-primary text-white text-center py-5">
     <div class="container">
-        <div class="hero-content">
-            <h1>Welcome to Emma's Event Management</h1>
-            <p>Discover exciting events near you or create your own!</p>
-            <div class="hero-buttons">
-                <a href="${pageContext.request.contextPath}/events/list" class="btn btn-primary">Browse Events</a>
-                <c:if test="${not empty sessionScope.userId}">
-                    <a href="${pageContext.request.contextPath}/events/new" class="btn btn-secondary">Create Event</a>
-                </c:if>
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h1 class="display-4">Welcome to Emma's Event Management</h1>
+                <p class="lead mb-4">Discover exciting events near you or create your own!</p>
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                    <a href="${pageContext.request.contextPath}/events/list" class="btn btn-light btn-lg px-4 gap-3">Browse Events</a>
+                    <c:if test="${not empty sessionScope.userId}">
+                        <a href="${pageContext.request.contextPath}/events/new" class="btn btn-outline-light btn-lg px-4">Create Event</a>
+                    </c:if>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="container">
-    <div class="features-section">
-        <h2>Discover What We Offer</h2>
-        <div class="features-grid">
-            <div class="feature-card">
-                <i class="icon-search"></i>
-                <h3>Find Events</h3>
-                <p>Discover events by category, location, or date that match your interests.</p>
+<div class="container my-5">
+    <div class="row text-center mb-5">
+        <div class="col">
+            <h2>Discover What We Offer</h2>
+            <p class="lead text-muted">Everything you need to manage events successfully</p>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-search text-primary" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h3 class="card-title">Find Events</h3>
+                    <p class="card-text">Discover events by category, location, or date that match your interests.</p>
+                </div>
             </div>
-            <div class="feature-card">
-                <i class="icon-calendar"></i>
-                <h3>Create Events</h3>
-                <p>Host your own events and manage registrations easily.</p>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-calendar-event text-primary" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h3 class="card-title">Create Events</h3>
+                    <p class="card-text">Host your own events and manage registrations easily.</p>
+                </div>
             </div>
-            <div class="feature-card">
-                <i class="icon-users"></i>
-                <h3>RSVP</h3>
-                <p>Quickly respond to event invitations and keep track of your schedule.</p>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-people text-primary" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h3 class="card-title">RSVP</h3>
+                    <p class="card-text">Quickly respond to event invitations and keep track of your schedule.</p>
+                </div>
             </div>
         </div>
     </div>
     
-    <div class="upcoming-events">
-        <h2>Upcoming Events</h2>
-        <div class="event-carousel">
-            
-            <p class="text-center">Loading upcoming events...</p>
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <h2>Upcoming Events</h2>
+            <p class="lead text-muted mb-4">Check out what's happening soon</p>
+            <div class="event-carousel" id="upcomingEvents">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading upcoming events...</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Additional script to load upcoming events -->
+<!-- JavaScript to load upcoming events -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        fetch('${pageContext.request.contextPath}/events/api/upcoming')
-            .then(response => response.json())
-            .then(events => {
-                const eventCarousel = document.querySelector('.event-carousel');
-                if (events.length > 0) {
-                    eventCarousel.innerHTML = '';
-                    events.forEach(event => {
-                        eventCarousel.innerHTML += `
-                            <div class="event-card">
-                                <div class="event-card-header">
-                                    <h3>${event.name}</h3>
-                                    <span class="event-type">${event.type}</span>
+    fetch('${pageContext.request.contextPath}/events/api/upcoming')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(events => {
+            const eventCarousel = document.getElementById('upcomingEvents');
+            if (events.length > 0) {
+                let html = '<div class="row row-cols-1 row-cols-md-3 g-4">';
+                events.forEach(event => {
+                    // Format the date in JavaScript
+                    const eventDate = new Date(event.date);
+                    const formattedDate = eventDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+                    
+                    // Handle description length safely
+                    const description = event.description || '';
+                    const shortDesc = description.length > 100 ? description.substring(0, 100) + '...' : description;
+                    
+                    html += `
+                        <div class="col">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header">
+                                    <h5 class="card-title">${event.name}</h5>
+                                    <span class="badge bg-primary">${event.type}</span>
                                 </div>
-                                <div class="event-card-body">
-                                    <p class="event-location"><i class="icon-location"></i> ${event.location}</p>
-                                    <p class="event-date"><i class="icon-calendar"></i> ${new Date(event.date).toLocaleDateString()}</p>
-                                    <p class="event-description">${event.description.substring(0, 100)}...</p>
+                                <div class="card-body">
+                                    <p class="card-text"><i class="bi bi-geo-alt me-2"></i>${event.location}</p>
+                                    <p class="card-text"><i class="bi bi-calendar me-2"></i>${formattedDate}</p>
+                                    <p class="card-text">${shortDesc}</p>
                                 </div>
-                                <div class="event-card-footer">
-                                    <a href="${pageContext.request.contextPath}/events/details?id=${event.id}" class="btn btn-primary">View Details</a>
+                                <div class="card-footer bg-white">
+                                    <a href="${pageContext.request.contextPath}/events/details?id=${event.id}" class="btn btn-primary w-100">View Details</a>
                                 </div>
                             </div>
-                        `;
-                    });
-                } else {
-                    eventCarousel.innerHTML = '<p class="text-center">No upcoming events found.</p>';
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching upcoming events:', error);
-                const eventCarousel = document.querySelector('.event-carousel');
-                eventCarousel.innerHTML = '<p class="text-center">Failed to load upcoming events. Please try again later.</p>';
-            });
-    });
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                eventCarousel.innerHTML = html;
+            } else {
+                eventCarousel.innerHTML = '<p class="text-center">No upcoming events found.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching upcoming events:', error);
+            const eventCarousel = document.getElementById('upcomingEvents');
+            eventCarousel.innerHTML = '<div class="alert alert-danger">Failed to load upcoming events. Please try again later.</div>';
+        });
+});
 </script>
 
 <jsp:include page="WEB-INF/jsp/common/footer.jsp" />
