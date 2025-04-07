@@ -1,8 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-<jsp:include page="../common/header.jsp" />
-<jsp:include page="../common/navigation.jsp" />
+<jsp:include page="/WEB-INF/jsp/common/header.jsp" />
+<jsp:include page="/WEB-INF/jsp/common/navigation.jsp" />
+<jsp:include page="/WEB-INF/jsp/common/footer.jsp" />
 
 <div class="container mt-5">
     <div class="row">
@@ -49,4 +50,27 @@
     </div>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.querySelector('form');
+    loginForm.addEventListener('submit', function(event) {
+        const username = document.getElementById('username');
+        const password = document.getElementById('password');
+
+        if (username.value.trim() === '') {
+            alert('Please enter your username');
+            event.preventDefault();
+            username.focus();
+            return;
+        }
+
+        if (password.value === '') {
+            alert('Please enter your password');
+            event.preventDefault();
+            password.focus();
+            return;
+        }
+    });
+});
+</script>
 <jsp:include page="../common/footer.jsp" />

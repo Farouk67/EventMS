@@ -2,8 +2,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
-<jsp:include page="../common/header.jsp" />
-<jsp:include page="../common/navigation.jsp" />
+<jsp:include page="/WEB-INF/jsp/common/header.jsp" />
+<jsp:include page="/WEB-INF/jsp/common/navigation.jsp" />
 
 <div class="container">
     <div class="page-header">

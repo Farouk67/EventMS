@@ -1,10 +1,20 @@
 package com.emma.service;
 
+import com.emma.repository.EventRepository;
+import com.emma.repository.RSVPRepository;
+import com.emma.repository.UserRepository;
+
 /**
- * Factory for service objects to avoid circular dependencies
+ * Factory for service objects to manage dependencies
  */
 public class ServiceFactory {
     
+    // Repositories
+    private static final EventRepository eventRepository = new EventRepository();
+    private static final RSVPRepository rsvpRepository = new RSVPRepository();
+    private static final UserRepository userRepository = new UserRepository();
+    
+    // Services with explicit dependency injection
     private static EventService eventService;
     private static RSVPService rsvpService;
     private static UserService userService;
@@ -15,17 +25,20 @@ public class ServiceFactory {
     }
     
     /**
-     * Initialize all services and their relationships
+     * Initialize all services with their dependencies in the correct order to avoid circular dependencies
      */
     private static void initializeServices() {
-        // Create service instances
-        eventService = new EventService();
-        rsvpService = new RSVPService();
-        userService = new UserService();
+        // First create EventService without RSVPService dependency
+        eventService = new EventService(eventRepository);
         
-        // Set up dependencies
-        rsvpService.setEventService(eventService);
-       
+        // Then create RSVPService
+        rsvpService = new RSVPService(rsvpRepository, eventRepository);
+        
+        // Now set RSVPService in EventService
+        eventService.setRsvpService(rsvpService);
+        
+        // Finally create UserService
+        userService = new UserService(userRepository);
     }
     
     /**

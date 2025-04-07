@@ -31,10 +31,6 @@
         <url-pattern>/events/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-    <servlet-name>EventController</servlet-name>
-    <url-pattern>/events/api/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>RSVPController</servlet-name>
         <url-pattern>/rsvp/*</url-pattern>
     </servlet-mapping>
@@ -47,7 +43,6 @@
         <url-pattern>/users/*</url-pattern>
     </servlet-mapping>
     
-
     <!-- Jersey REST Service Configuration -->
     <servlet>
         <servlet-name>Jersey Web Application</servlet-name>
@@ -93,6 +88,11 @@
         <session-timeout>30</session-timeout>
     </session-config>
 
+    <!-- Context Listeners -->
+        <listener>
+            <listener-class>com.emma.util.DatabaseInitializer</listener-class>
+        </listener>
+
     <!-- Error Pages -->
     <error-page>
         <error-code>404</error-code>
@@ -106,6 +106,4 @@
         <exception-type>java.lang.Exception</exception-type>
         <location>/WEB-INF/jsp/common/error-generic.jsp</location>
     </error-page>
-
-    
 </web-app>

@@ -90,6 +90,7 @@ public class UserController extends HttpServlet {
     
     private void processRegistration(HttpServletRequest request, HttpServletResponse response) 
             throws SQLException, IOException, ServletException {
+        // Registration logic remains the same
         String username = request.getParameter("username");
         String email = request.getParameter("email");
         String password = request.getParameter("password");

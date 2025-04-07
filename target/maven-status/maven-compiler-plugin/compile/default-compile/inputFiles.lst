@@ -1,6 +1,7 @@
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\model\Event.java
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\repository\UserRepository.java
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\webservice\EventWebService.java
+c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\util\DBConnectionPool.java
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\dao\EventDAO.java
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\service\EventService.java
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\controller\SearchController.java
@@ -20,6 +21,7 @@ c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\d
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\filters\AuthenticationFilter.java
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\model\User.java
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\webservice\RSVPWebService.java
+c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\util\DatabaseInitializer.java
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\controller\RSVPController.java
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\controller\UserController.java
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\service\RSVPService.java

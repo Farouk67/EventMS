@@ -4,6 +4,7 @@ com\emma\dao\UserDAO.class
 com\emma\webservice\EventWebService.class
 com\emma\repository\EventRepository.class
 com\emma\service\ServiceFactory.class
+com\emma\util\DBConnectionPool.class
 com\emma\ml\EventPredictor.class
 com\emma\model\RSVP.class
 com\emma\webservice\RSVPWebService.class
@@ -24,4 +25,5 @@ com\emma\repository\UserRepository.class
 com\emma\util\ValidationUtil.class
 com\emma\repository\RSVPRepository.class
 com\emma\ml\FeatureExtractor.class
+com\emma\util\DatabaseInitializer.class
 com\emma\filters\AuthenticationFilter.class

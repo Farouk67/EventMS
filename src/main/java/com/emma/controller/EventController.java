@@ -28,6 +28,7 @@ public class EventController extends HttpServlet {
         super();
         // Use the ServiceFactory to get the EventService instance
         eventService = ServiceFactory.getEventService();
+        System.out.println("EventController constructor - eventService initialized: " + (eventService != null));
     }
     
     @Override
@@ -36,12 +37,18 @@ public class EventController extends HttpServlet {
         // Double-check that the service is initialized
         if (eventService == null) {
             eventService = ServiceFactory.getEventService();
+            System.out.println("EventController init - eventService initialized: " + (eventService != null));
         }
     }
     
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         String action = request.getPathInfo();
+        
+        // Debug logging
+        System.out.println("EventController received request: " + request.getRequestURI());
+        System.out.println("Path info: " + action);
+        System.out.println("Query string: " + request.getQueryString());
         
         try {
             if (action == null) {
@@ -75,13 +82,34 @@ public class EventController extends HttpServlet {
                     case "/api/upcoming":
                         getUpcomingEvents(request, response);
                         break;
+                    case "/test":
+                        testEndpoint(request, response);
+                        break;
                     default:
                         listEvents(request, response);
                         break;
                 }
             }
-        } catch (SQLException | ParseException ex) {
-            throw new ServletException(ex);
+        } catch (Exception ex) {
+            // Log the exception
+            System.err.println("Error in EventController: " + ex.getMessage());
+            ex.printStackTrace();
+            
+            // Set error message and forward to error page
+            request.setAttribute("errorMessage", "An unexpected error occurred: " + ex.getMessage());
+            
+            // Check if error.jsp exists before forwarding
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/common/error.jsp");
+            if (dispatcher == null) {
+                // If not found, try a direct HTML response
+                response.setContentType("text/html");
+                response.getWriter().println("<html><body><h1>Error</h1><p>An unexpected error occurred: " + 
+                                             ex.getMessage() + "</p><p><a href='" + 
+                                             request.getContextPath() + "'>Return to home</a></p></body></html>");
+                return;
+            }
+            
+            dispatcher.forward(request, response);
         }
     }
     
@@ -90,22 +118,55 @@ public class EventController extends HttpServlet {
         doGet(request, response);
     }
     
+    private void testEndpoint(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        response.setContentType("text/html");
+        response.getWriter().println("<html><body>");
+        response.getWriter().println("<h1>Test Endpoint Working</h1>");
+        response.getWriter().println("<p>This confirms your EventController is properly handling requests.</p>");
+        response.getWriter().println("</body></html>");
+    }
+    
     private void listEvents(HttpServletRequest request, HttpServletResponse response) 
             throws SQLException, ServletException, IOException {
-        List<Event> events = eventService.getAllEvents();
-        request.setAttribute("events", events);
+        System.out.println("Executing listEvents method");
         
-        // Also get all event types for navigation
-        List<String> eventTypes = eventService.getAllEventTypes();
-        request.setAttribute("eventTypes", eventTypes);
-        
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/event-list.jsp");
-        dispatcher.forward(request, response);
+        try {
+            List<Event> events = eventService.getAllEvents();
+            System.out.println("Retrieved " + (events != null ? events.size() : "null") + " events");
+            
+            request.setAttribute("events", events);
+            
+            // Also get all event types for navigation
+            List<String> eventTypes = eventService.getAllEventTypes();
+            System.out.println("Retrieved " + (eventTypes != null ? eventTypes.size() : "null") + " event types");
+            
+            request.setAttribute("eventTypes", eventTypes);
+            
+            // Check if the JSP exists
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/events/list.jsp");
+            if (dispatcher == null) {
+                System.err.println("list.jsp not found in expected location");
+                response.setContentType("text/html");
+                response.getWriter().println("<html><body><h1>Error</h1><p>Required JSP file not found.</p></body></html>");
+                return;
+            }
+            
+            dispatcher.forward(request, response);
+        } catch (Exception e) {
+            System.err.println("Error in listEvents method: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
     
     private void listEventsByType(HttpServletRequest request, HttpServletResponse response) 
             throws SQLException, ServletException, IOException {
+        System.out.println("Executing listEventsByType method");
+        
         String eventType = request.getParameter("type");
+        System.out.println("Event type parameter: " + eventType);
+        
         List<Event> events = eventService.getEventsByType(eventType);
         request.setAttribute("events", events);
         request.setAttribute("currentType", eventType);
@@ -114,21 +175,25 @@ public class EventController extends HttpServlet {
         List<String> eventTypes = eventService.getAllEventTypes();
         request.setAttribute("eventTypes", eventTypes);
         
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/event-list.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/events/list.jsp");
         dispatcher.forward(request, response);
     }
 
     private void showNewForm(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException, SQLException {
+        System.out.println("Executing showNewForm method");
+        
         List<String> eventTypes = eventService.getAllEventTypes();
         request.setAttribute("eventTypes", eventTypes);
         
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/event-form.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/events/create.jsp");
         dispatcher.forward(request, response);
     }
     
     private void showEditForm(HttpServletRequest request, HttpServletResponse response) 
             throws SQLException, ServletException, IOException {
+        System.out.println("Executing showEditForm method");
+        
         int id = Integer.parseInt(request.getParameter("id"));
         Event existingEvent = eventService.getEvent(id);
         
@@ -136,22 +201,84 @@ public class EventController extends HttpServlet {
         request.setAttribute("eventTypes", eventTypes);
         
         request.setAttribute("event", existingEvent);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/event-form.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/events/edit.jsp");
         dispatcher.forward(request, response);
     }
     
     private void showEventDetails(HttpServletRequest request, HttpServletResponse response) 
-            throws SQLException, ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        Event event = eventService.getEvent(id);
-        request.setAttribute("event", event);
+            throws ServletException, IOException {
+        System.out.println("Executing showEventDetails method");
         
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/event-details.jsp");
-        dispatcher.forward(request, response);
+        try {
+            // Validate ID parameter
+            String idParam = request.getParameter("id");
+            System.out.println("Event ID parameter: " + idParam);
+            
+            if (idParam == null || idParam.trim().isEmpty()) {
+                handleError(request, response, "Event ID is missing or empty. Please provide a valid event ID.");
+                return;
+            }
+            
+            int id;
+            try {
+                id = Integer.parseInt(idParam);
+            } catch (NumberFormatException e) {
+                handleError(request, response, "Invalid event ID format. Please provide a numeric ID.");
+                return;
+            }
+            
+            // Get event from service
+            Event event = null;
+            try {
+                event = eventService.getEvent(id);
+                System.out.println("Retrieved event: " + (event != null ? event.getName() : "null"));
+            } catch (Exception e) {
+                handleError(request, response, "Error retrieving event: " + e.getMessage());
+                return;
+            }
+            
+            // Check if event exists
+            if (event == null) {
+                handleError(request, response, "Event not found. The event with ID " + id + " does not exist.");
+                return;
+            }
+            
+            // Set event in request and forward to JSP
+            request.setAttribute("event", event);
+            
+            // Check if user has RSVPed to this event
+            HttpSession session = request.getSession(false);
+            if (session != null && session.getAttribute("userId") != null) {
+                Integer userId = (Integer) session.getAttribute("userId");
+                boolean hasRSVPed = false;
+                
+                // Get RSVP service to check
+                try {
+                    hasRSVPed = ServiceFactory.getRsvpService().hasUserRSVPed(userId, id);
+                } catch (Exception e) {
+                    System.err.println("Error checking RSVP status: " + e.getMessage());
+                    // Continue without setting RSVP status
+                }
+                
+                request.setAttribute("hasRSVPed", hasRSVPed);
+            }
+            
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/events/view.jsp");
+            dispatcher.forward(request, response);
+        } catch (Exception e) {
+            // Log the exception
+            System.err.println("Error in showEventDetails: " + e.getMessage());
+            e.printStackTrace();
+            
+            // Handle unexpected errors
+            handleError(request, response, "An unexpected error occurred: " + e.getMessage());
+        }
     }
     
     private void insertEvent(HttpServletRequest request, HttpServletResponse response) 
             throws SQLException, IOException, ParseException {
+        System.out.println("Executing insertEvent method");
+        
         String name = request.getParameter("name");
         String type = request.getParameter("type");
         String dateStr = request.getParameter("date");
@@ -176,6 +303,8 @@ public class EventController extends HttpServlet {
     
     private void updateEvent(HttpServletRequest request, HttpServletResponse response) 
             throws SQLException, IOException, ParseException {
+        System.out.println("Executing updateEvent method");
+        
         int id = Integer.parseInt(request.getParameter("id"));
         String name = request.getParameter("name");
         String type = request.getParameter("type");
@@ -203,6 +332,8 @@ public class EventController extends HttpServlet {
     
     private void deleteEvent(HttpServletRequest request, HttpServletResponse response) 
             throws SQLException, IOException {
+        System.out.println("Executing deleteEvent method");
+        
         int id = Integer.parseInt(request.getParameter("id"));
         eventService.deleteEvent(id);
         response.sendRedirect("list");
@@ -210,8 +341,18 @@ public class EventController extends HttpServlet {
     
     private void getUpcomingEvents(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
+        System.out.println("Executing getUpcomingEvents method");
+        
         try {
             List<Event> upcomingEvents = eventService.getUpcomingEvents();
+            System.out.println("Retrieved " + (upcomingEvents != null ? upcomingEvents.size() : "null") + " upcoming events");
+            
+            // Log each event for debugging
+            if (upcomingEvents != null) {
+                for (Event event : upcomingEvents) {
+                    System.out.println("Event ID: " + event.getId() + ", Name: " + event.getName());
+                }
+            }
             
             // Convert to JSON
             Gson gson = new Gson();
@@ -225,6 +366,7 @@ public class EventController extends HttpServlet {
             response.getWriter().write(jsonEvents);
         } catch (Exception ex) {
             // Log the error
+            System.err.println("Error in getUpcomingEvents: " + ex.getMessage());
             ex.printStackTrace();
             
             // Send error response
@@ -246,5 +388,37 @@ public class EventController extends HttpServlet {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         sdf.setLenient(false);
         sdf.parse(dateStr);
+    }
+    
+    /**
+     * Helper method to handle errors in a consistent way
+     */
+    private void handleError(HttpServletRequest request, HttpServletResponse response, String errorMessage) 
+            throws ServletException, IOException {
+        // Log the error
+        System.err.println("Event Controller Error: " + errorMessage);
+        
+        // Set error message in request
+        request.setAttribute("errorMessage", errorMessage);
+        
+        // First try to use a common error JSP
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/common/error.jsp");
+        
+        if (dispatcher == null) {
+            // If error.jsp is not found, try a different path
+            dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/common/error-500.jsp");
+            
+            if (dispatcher == null) {
+                // If that still doesn't work, send a direct HTML response
+                response.setContentType("text/html");
+                response.getWriter().println("<html><body><h1>Error</h1><p>" + 
+                                             errorMessage + "</p><p><a href='" + 
+                                             request.getContextPath() + "'>Return to home</a></p></body></html>");
+                return;
+            }
+        }
+        
+        // Forward to the appropriate error page
+        dispatcher.forward(request, response);
     }
 }

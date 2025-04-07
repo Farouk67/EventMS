@@ -75,7 +75,7 @@ public class RSVPController extends HttpServlet {
         Integer userId = (Integer) session.getAttribute("userId");
         
         if (userId == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+            response.sendRedirect(request.getContextPath() + "/users/login");
             return;
         }
         
@@ -100,7 +100,7 @@ public class RSVPController extends HttpServlet {
         Integer userId = (Integer) session.getAttribute("userId");
         
         if (userId == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+            response.sendRedirect(request.getContextPath() + "/users/login");
             return;
         }
         

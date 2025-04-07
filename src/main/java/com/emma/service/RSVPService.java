@@ -4,26 +4,22 @@ import java.util.Date;
 import java.util.List;
 import com.emma.model.RSVP;
 import com.emma.repository.RSVPRepository;
+import com.emma.repository.EventRepository;
 
 public class RSVPService {
     
-    private RSVPRepository rsvpRepository;
-    private EventService eventService;
+    private final RSVPRepository rsvpRepository;
+    private final EventRepository eventRepository;
     
     /**
-     * Default constructor - does not initialize EventService
-     */
-    public RSVPService() {
-        this.rsvpRepository = new RSVPRepository();
-    }
-    
-    /**
-     * Sets the EventService - to be used after construction to avoid circular dependency
+     * Constructor with explicit dependencies
      * 
-     * @param eventService The EventService to use
+     * @param rsvpRepository The RSVP repository
+     * @param eventRepository The Event repository
      */
-    public void setEventService(EventService eventService) {
-        this.eventService = eventService;
+    public RSVPService(RSVPRepository rsvpRepository, EventRepository eventRepository) {
+        this.rsvpRepository = rsvpRepository;
+        this.eventRepository = eventRepository;
     }
     
     /**
@@ -54,12 +50,36 @@ public class RSVPService {
         // Save RSVP
         int rsvpId = rsvpRepository.save(rsvp);
         
-        // Update event attendee count
-        if (eventService != null) {
-            eventService.incrementAttendeeCount(rsvp.getEventId());
-        }
+        // Update event attendee count directly via repository
+        incrementAttendeeCount(rsvp.getEventId());
         
         return rsvpId;
+    }
+    
+    /**
+     * Increments the attendee count for an event
+     * 
+     * @param eventId The ID of the event
+     */
+    private void incrementAttendeeCount(int eventId) {
+        eventRepository.findById(eventId).ifPresent(event -> {
+            event.setAttendeeCount(event.getAttendeeCount() + 1);
+            eventRepository.save(event);
+        });
+    }
+    
+    /**
+     * Decrements the attendee count for an event
+     * 
+     * @param eventId The ID of the event
+     */
+    private void decrementAttendeeCount(int eventId) {
+        eventRepository.findById(eventId).ifPresent(event -> {
+            if (event.getAttendeeCount() > 0) {
+                event.setAttendeeCount(event.getAttendeeCount() - 1);
+                eventRepository.save(event);
+            }
+        });
     }
     
     /**
@@ -72,9 +92,7 @@ public class RSVPService {
         RSVP rsvp = findRSVPByUserAndEvent(userId, eventId);
         if (rsvp != null) {
             rsvpRepository.delete(rsvp.getId());
-            if (eventService != null) {
-                eventService.decrementAttendeeCount(eventId);
-            }
+            decrementAttendeeCount(eventId);
         }
     }
     
@@ -154,9 +172,7 @@ public class RSVPService {
         RSVP rsvp = findRSVPById(id);
         if (rsvp != null) {
             rsvpRepository.delete(id);
-            if (eventService != null) {
-                eventService.decrementAttendeeCount(rsvp.getEventId());
-            }
+            decrementAttendeeCount(rsvp.getEventId());
         }
     }
 }

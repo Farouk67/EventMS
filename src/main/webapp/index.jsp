@@ -2,8 +2,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
-<jsp:include page="WEB-INF/jsp/common/header.jsp" />
-<jsp:include page="WEB-INF/jsp/common/navigation.jsp" />
+<jsp:include page="/WEB-INF/jsp/common/header.jsp" />
+<jsp:include page="/WEB-INF/jsp/common/navigation.jsp" />
+
 
 <div class="hero-section bg-primary text-white text-center py-5">
     <div class="container">
@@ -85,42 +86,75 @@
 </div>
 
 <!-- JavaScript to load upcoming events -->
+<!-- JavaScript to load upcoming events -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+    console.log("Loading upcoming events...");
     fetch('${pageContext.request.contextPath}/events/api/upcoming')
         .then(response => {
+            console.log("API response status:", response.status);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             return response.json();
         })
         .then(events => {
+            console.log("Events received:", events);
             const eventCarousel = document.getElementById('upcomingEvents');
-            if (events.length > 0) {
+            if (events && events.length > 0) {
                 let html = '<div class="row row-cols-1 row-cols-md-3 g-4">';
                 events.forEach(event => {
-                    // Format the date in JavaScript
-                    const eventDate = new Date(event.date);
-                    const formattedDate = eventDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+                    console.log("Processing event:", event.id, event.name);
                     
-                    // Handle description length safely
+                    // Safely handle date formatting
+                    let formattedDate = 'TBD';
+                    try {
+                        if (event.eventDate) {
+                            const eventDate = new Date(event.eventDate);
+                            if (!isNaN(eventDate.getTime())) {
+                                formattedDate = eventDate.toLocaleDateString('en-US', {
+                                    year: 'numeric', 
+                                    month: 'short', 
+                                    day: 'numeric'
+                                });
+                            }
+                        }
+                    } catch (dateError) {
+                        console.error('Error parsing date:', dateError);
+                    }
+
+                    // Safely handle other fields
+                    const eventName = event.name || 'Unnamed Event';
+                    const eventType = event.type || 'Unspecified';
+                    const eventLocation = event.location || 'Location TBD';
                     const description = event.description || '';
-                    const shortDesc = description.length > 100 ? description.substring(0, 100) + '...' : description;
+                    const shortDesc = description.length > 100 
+                        ? description.substring(0, 100) + '...' 
+                        : description;
                     
+                    // Make sure the ID exists before creating a link
+                    const detailsLink = event.id 
+                        ? `${pageContext.request.contextPath}/events/details?id=${event.id}` 
+                        : '#';
+                    
+                    if (!event.id) {
+                        console.warn("Event missing ID:", event);
+                    }
+
                     html += `
                         <div class="col">
                             <div class="card h-100 shadow-sm">
                                 <div class="card-header">
-                                    <h5 class="card-title">${event.name}</h5>
-                                    <span class="badge bg-primary">${event.type}</span>
+                                    <h5 class="card-title">${eventName}</h5>
+                                    <span class="badge bg-primary">${eventType}</span>
                                 </div>
                                 <div class="card-body">
-                                    <p class="card-text"><i class="bi bi-geo-alt me-2"></i>${event.location}</p>
+                                    <p class="card-text"><i class="bi bi-geo-alt me-2"></i>${eventLocation}</p>
                                     <p class="card-text"><i class="bi bi-calendar me-2"></i>${formattedDate}</p>
                                     <p class="card-text">${shortDesc}</p>
                                 </div>
                                 <div class="card-footer bg-white">
-                                    <a href="${pageContext.request.contextPath}/events/details?id=${event.id}" class="btn btn-primary w-100">View Details</a>
+                                    <a href="${detailsLink}" class="btn btn-primary w-100">View Details</a>
                                 </div>
                             </div>
                         </div>

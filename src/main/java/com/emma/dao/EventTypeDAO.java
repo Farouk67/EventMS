@@ -7,13 +7,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.emma.util.DatabaseUtil;
+import com.emma.util.DBConnectionPool;
 
 public class EventTypeDAO {
     private Connection connection;
     
     public EventTypeDAO() throws SQLException {
-        connection = DatabaseUtil.getConnection();
+        connection = DBConnectionPool.getConnection();
     }
     
     public List<String> getAllEventTypes() throws SQLException {

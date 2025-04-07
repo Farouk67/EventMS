@@ -1,0 +1,35 @@
+@relation event_categorization
+
+@attribute event_name string
+@attribute event_description string
+@attribute event_type {Conference,Workshop,Concert,Social,Sports,Exhibition,Other}
+
+@data
+'Tech Conference 2025','Annual technology conference featuring the latest innovations and trends',Conference
+'Developer Summit','Gathering of software developers to discuss best practices and new technologies',Conference
+'Industry Expo','Exhibition of industry products and services',Conference
+'Leadership Forum','Conference focusing on leadership skills and strategies',Conference
+'Web Development Workshop','Learn the basics of HTML, CSS, and JavaScript',Workshop
+'Data Science Workshop','Introduction to data science concepts and tools',Workshop
+'Mobile App Development Workshop','Building mobile applications for iOS and Android',Workshop
+'UX Design Workshop','User experience design principles and practices',Workshop
+'Jazz Night','An evening of smooth jazz music with local artists',Concert
+'Rock Concert','Live performance by popular rock bands',Concert
+'Classical Music Concert','Orchestra performing classical masterpieces',Concert
+'Music Festival','Multi-day event featuring various musical artists',Concert
+'Networking Mixer','Connect with professionals in your industry',Social
+'Community Potluck','Social gathering where everyone brings a dish to share',Social
+'Charity Gala','Formal fundraising event for charitable causes',Social
+'Speed Networking','Quick introductions to many professionals in a short time',Social
+'Charity Fun Run','5K run to raise funds for local children\'s hospital',Sports
+'Basketball Tournament','Competitive basketball tournament for local teams',Sports
+'Yoga in the Park','Outdoor yoga session for all skill levels',Sports
+'Cycling Event','Group cycling event through scenic routes',Sports
+'Art Exhibition Opening','Opening reception for new contemporary art exhibit',Exhibition
+'Photography Showcase','Exhibition of photographs by local artists',Exhibition
+'Product Launch','Unveiling of new products to the public',Exhibition
+'Science Fair','Display of science projects and experiments',Exhibition
+'Book Club Meeting','Discussion group for literature enthusiasts',Other
+'Poetry Reading','Public reading of poetry works',Other
+'Film Screening','Showing of independent or classic films',Other
+'Community Service Day','Volunteer event to help local community',Other

@@ -10,16 +10,15 @@ public class Event {
     private int id;
     private String name;
     private String description;
-    private String type; // For compatibility with UserDAO
+    private String type; // Event type name for display
     private String location;
-    private Date date; // For compatibility with UserDAO
-    private Date eventDate; // For compatibility with EventDAO
+    private Date eventDate; // Single date field to match database column
     private int attendeeCount;
     private int capacity;
     private boolean registrationRequired;
     private double ticketPrice;
     private Integer organizerId; // For compatibility with UserDAO
-    private Integer createdBy; // For compatibility with EventDAO
+    private Integer createdBy; // Also stores organizer ID
     private Integer eventTypeId;
     private String eventTypeName;
     private Timestamp createdAt;
@@ -31,27 +30,25 @@ public class Event {
     }
     
     // Constructor with basic information
-    public Event(String name, String description, String type, String location, Date date) {
+    public Event(String name, String description, String type, String location, Date eventDate) {
         this.name = name;
         this.description = description;
         this.type = type;
         this.location = location;
-        this.date = date;
-        this.eventDate = date; // Sync both date fields
+        this.eventDate = eventDate;
         this.attendeeCount = 0;
     }
     
     // Constructor for UserDAO compatibility
     public Event(int id, String name, String description, String type, String location, 
-                Date date, int attendeeCount, int capacity, boolean registrationRequired, 
+                Date eventDate, int attendeeCount, int capacity, boolean registrationRequired, 
                 double ticketPrice, Integer organizerId) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.type = type;
         this.location = location;
-        this.date = date;
-        this.eventDate = date; // Sync both date fields
+        this.eventDate = eventDate;
         this.attendeeCount = attendeeCount;
         this.capacity = capacity;
         this.registrationRequired = registrationRequired;
@@ -67,7 +64,6 @@ public class Event {
         this.name = name;
         this.description = description;
         this.eventDate = eventDate;
-        this.date = eventDate; // Sync both date fields
         this.location = location;
         this.createdBy = createdBy;
         this.organizerId = createdBy; // Sync both organizer fields
@@ -77,7 +73,7 @@ public class Event {
         this.updatedAt = new Timestamp(System.currentTimeMillis());
     }
     
-    // Original getters and setters
+    // Getters and setters
     
     public int getId() {
         return id;
@@ -119,13 +115,14 @@ public class Event {
         this.location = location;
     }
     
+    // For backward compatibility - delegates to eventDate
     public Date getDate() {
-        return date;
+        return eventDate;
     }
     
+    // For backward compatibility - delegates to eventDate
     public void setDate(Date date) {
-        this.date = date;
-        this.eventDate = date; // Keep both date fields in sync
+        this.eventDate = date;
     }
     
     public int getAttendeeCount() {
@@ -169,15 +166,13 @@ public class Event {
         this.createdBy = organizerId; // Keep both organizer fields in sync
     }
     
-    // New getters and setters for EventDAO compatibility
-    
+    // Primary getter and setter for event date
     public Date getEventDate() {
         return eventDate;
     }
     
     public void setEventDate(Date eventDate) {
         this.eventDate = eventDate;
-        this.date = eventDate; // Keep both date fields in sync
     }
     
     public Integer getCreatedBy() {
@@ -224,6 +219,6 @@ public class Event {
     @Override
     public String toString() {
         return "Event [id=" + id + ", name=" + name + ", type=" + type + ", location=" + location 
-                + ", date=" + date + ", attendeeCount=" + attendeeCount + ", organizerId=" + organizerId + "]";
+                + ", eventDate=" + eventDate + ", attendeeCount=" + attendeeCount + ", organizerId=" + organizerId + "]";
     }
 }

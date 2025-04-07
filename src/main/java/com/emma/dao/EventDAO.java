@@ -1,6 +1,7 @@
 package com.emma.dao;
 
 import com.emma.model.Event;
+import com.emma.util.DBConnectionPool;
 import com.emma.util.DatabaseUtil;
 
 import java.sql.*;
@@ -16,7 +17,7 @@ public class EventDAO {
         ResultSet rs = null;
         
         try {
-            conn = DatabaseUtil.getConnection();
+            conn = DBConnectionPool.getConnection();
             String sql = "INSERT INTO events (name, description, event_date, location, created_by, event_type_id, capacity, created_at, updated_at) " +
                          "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                          
@@ -78,7 +79,7 @@ public class EventDAO {
         PreparedStatement pstmt = null;
         
         try {
-            conn = DatabaseUtil.getConnection();
+            conn = DBConnectionPool.getConnection();
             String sql = "UPDATE events SET name = ?, description = ?, event_date = ?, location = ?, " +
                          "event_type_id = ?, capacity = ?, updated_at = ? WHERE id = ?";
                          
@@ -120,7 +121,7 @@ public class EventDAO {
         PreparedStatement pstmt = null;
         
         try {
-            conn = DatabaseUtil.getConnection();
+            conn = DBConnectionPool.getConnection();
             String deleteRSVPs = "DELETE FROM rsvps WHERE event_id = ?";
             pstmt = conn.prepareStatement(deleteRSVPs);
             pstmt.setInt(1, eventId);
@@ -143,7 +144,7 @@ public class EventDAO {
         ResultSet rs = null;
         
         try {
-            conn = DatabaseUtil.getConnection();
+            conn = DBConnectionPool.getConnection();
             String sql = "SELECT e.*, et.name as event_type_name FROM events e " +
                          "JOIN event_types et ON e.event_type_id = et.id " +
                          "WHERE e.id = ?";

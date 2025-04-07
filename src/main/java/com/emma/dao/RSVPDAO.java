@@ -9,13 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.emma.model.RSVP;
-import com.emma.util.DatabaseUtil;
+import com.emma.util.DBConnectionPool;
+
 
 public class RSVPDAO {
     private Connection connection;
     
     public RSVPDAO() throws SQLException {
-        connection = DatabaseUtil.getConnection();
+        connection = DBConnectionPool.getConnection();
     }
     
     public RSVP createRSVP(RSVP rsvp) throws SQLException {

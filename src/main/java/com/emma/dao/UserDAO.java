@@ -10,13 +10,13 @@ import java.util.List;
 
 import com.emma.model.User;
 import com.emma.model.Event;
-import com.emma.util.DatabaseUtil;
+import com.emma.util.DBConnectionPool;
 
 public class UserDAO {
     private Connection connection;
     
     public UserDAO() throws SQLException {
-        connection = DatabaseUtil.getConnection();
+        connection = DBConnectionPool.getConnection();
     }
     
     public User createUser(User user) throws SQLException {

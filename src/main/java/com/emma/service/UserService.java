@@ -17,13 +17,20 @@ import java.util.stream.Collectors;
  */
 public class UserService {
     
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final EventService eventService;
+    private final RSVPService rsvpService;
     
     /**
-     * Constructor
+     * Constructor with explicit dependencies
+     * 
+     * @param userRepository The User repository
      */
-    public UserService() {
-        this.userRepository = new UserRepository();
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+        // Get service instances through ServiceFactory to avoid direct instantiation
+        this.eventService = ServiceFactory.getEventService();
+        this.rsvpService = ServiceFactory.getRsvpService();
     }
     
     /**
@@ -50,9 +57,6 @@ public class UserService {
             return new ArrayList<>();
         }
         
-        // Get the event service from the factory
-        EventService eventService = ServiceFactory.getEventService();
-        
         // Get all events and filter by organizer ID
         List<Event> allEvents = eventService.getAllEvents();
         return allEvents.stream()
@@ -70,10 +74,6 @@ public class UserService {
         if (userId == null) {
             return new ArrayList<>();
         }
-        
-        // Get the services from the factory
-        RSVPService rsvpService = ServiceFactory.getRsvpService();
-        EventService eventService = ServiceFactory.getEventService();
         
         // Get all of the user's RSVPs
         List<RSVP> userRSVPs = rsvpService.findRSVPsByUserId(userId);

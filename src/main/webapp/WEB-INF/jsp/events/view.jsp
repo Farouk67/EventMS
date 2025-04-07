@@ -2,8 +2,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
-<jsp:include page="../common/header.jsp" />
-<jsp:include page="../common/navigation.jsp" />
+<jsp:include page="/WEB-INF/jsp/common/header.jsp" />
+<jsp:include page="/WEB-INF/jsp/common/navigation.jsp" />
 
 <div class="container">
     <div class="event-details">
@@ -33,9 +33,32 @@
                 <i class="icon-users"></i>
                 <div class="info-content">
                     <h3>Attendees</h3>
-                    <p>${event.attendeeCount} / ${event.capacity}</p>
-                    <div class="progress">
-                        <div class="progress-bar" style="width: ${(event.attendeeCount / event.capacity) * 100}%"></div>
+                    <div class="attendee-details">
+                        <span class="attendee-count">
+                            ${event.attendeeCount} / ${event.capacity} Registered
+                        </span>
+                        <c:choose>
+                            <c:when test="${event.capacity > 0}">
+                                <c:set var="attendeePercentage" 
+                                       value="${Math.min(Math.max((event.attendeeCount / event.capacity) * 100, 0), 100)}" />
+                                <div class="progress mt-2">
+                                    <div class="progress-bar 
+                                        ${attendeePercentage >= 90 ? 'bg-danger' : 
+                                          attendeePercentage >= 70 ? 'bg-warning' : 'bg-success'}" 
+                                         style="width: '${attendeePercentage}%'">
+                                    </div>
+                                </div>
+                                <small class="text-muted">
+                                    ${attendeePercentage >= 90 ? 'Almost Full' : 
+                                      attendeePercentage >= 70 ? 'Filling Up' : 'Spaces Available'}
+                                </small>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="alert alert-warning mt-2">
+                                    Capacity not set
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </div>
             </div>

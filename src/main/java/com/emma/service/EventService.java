@@ -10,19 +10,32 @@ import java.util.stream.Collectors;
 import com.emma.model.Event;
 import com.emma.repository.EventRepository;
 
+/**
+ * Service class for handling Event-related operations
+ */
 public class EventService {
 
-    // Create instance of repository
-    private EventRepository eventRepository;
+    // Repositories for database operations
+    private final EventRepository eventRepository;
+    private RSVPService rsvpService; // No longer final, will be set after initialization
     
     /**
-     * Constructor
+     * Constructor with explicit dependencies
+     * 
+     * @param eventRepository The Event repository
      */
-    public EventService() {
-        this.eventRepository = new EventRepository();
+    public EventService(EventRepository eventRepository) {
+        this.eventRepository = eventRepository;
     }
     
-    
+    /**
+     * Set the RSVPService (to be called after initialization)
+     * 
+     * @param rsvpService The RSVP service
+     */
+    public void setRsvpService(RSVPService rsvpService) {
+        this.rsvpService = rsvpService;
+    }
     
     /**
      * Retrieves all events from the system
@@ -82,6 +95,14 @@ public class EventService {
      */
     public void createEvent(Event newEvent) {
         if (newEvent != null) {
+            // Set default values if not provided
+            if (newEvent.getAttendeeCount() == 0) {
+                newEvent.setAttendeeCount(0);
+            }
+            if (newEvent.getType() == null || newEvent.getType().isEmpty()) {
+                newEvent.setType(getRecommendedEventType(newEvent));
+            }
+            
             eventRepository.save(newEvent);
         }
     }
@@ -106,61 +127,50 @@ public class EventService {
      */
     public void deleteEvent(int id) {
         if (eventRepository.existsById(id)) {
+            // Delete associated RSVPs first
+            if (rsvpService != null) {
+                List<Integer> rsvpIds = rsvpService.findRSVPsByEventId(id)
+                    .stream()
+                    .map(rsvp -> rsvp.getId())
+                    .collect(Collectors.toList());
+                
+                // Delete each RSVP individually
+                rsvpIds.forEach(rsvpId -> rsvpService.deleteRSVP(rsvpId));
+            }
+            
+            // Then delete the event
             eventRepository.deleteById(id);
         }
     }
 
     /**
-     * Increases the attendee count for an event
-     * 
-     * @param eventId The ID of the event to update
-     */
-    public void incrementAttendeeCount(int eventId) {
-        Event event = eventRepository.findById(eventId).orElse(null);
-        if (event != null) {
-            event.setAttendeeCount(event.getAttendeeCount() + 1);
-            eventRepository.save(event);
-        }
-    }
-
-    /**
-     * Decreases the attendee count for an event
-     * 
-     * @param eventId The ID of the event to update
-     */
-    public void decrementAttendeeCount(int eventId) {
-        Event event = eventRepository.findById(eventId).orElse(null);
-        if (event != null && event.getAttendeeCount() > 0) {
-            event.setAttendeeCount(event.getAttendeeCount() - 1);
-            eventRepository.save(event);
-        }
-    }
-
-    /**
-     * Gets all unique locations where events are held
-     * 
-     * @return List of location strings
-     */
-    public List<String> getAllLocations() {
-        List<Event> events = eventRepository.findAll();
-        Set<String> locations = new HashSet<>();
-        
-        for (Event event : events) {
-            if (event.getLocation() != null && !event.getLocation().isEmpty()) {
-                locations.add(event.getLocation());
-            }
-        }
-        
-        return new ArrayList<>(locations);
-    }
-    
-    /**
-     * Gets upcoming events
+     * Gets upcoming events (events with dates in the future)
      * 
      * @return List of upcoming events
      */
     public List<Event> getUpcomingEvents() {
-        return eventRepository.findUpcomingEvents();
+        // This calls the database method to get upcoming events
+        List<Event> upcomingEvents = eventRepository.findUpcomingEvents();
+        
+        // If the database method failed or returned no results, 
+        // fallback to filtering events in memory
+        if (upcomingEvents.isEmpty()) {
+            System.out.println("No upcoming events found in database, falling back to in-memory filtering");
+            
+            // Get the current date
+            Date now = new Date();
+            
+            // Get all events and filter for those in the future
+            upcomingEvents = eventRepository.findAll().stream()
+                .filter(event -> event.getEventDate() != null && event.getEventDate().after(now))
+                .sorted((e1, e2) -> e1.getEventDate().compareTo(e2.getEventDate()))
+                .limit(6)
+                .collect(Collectors.toList());
+            
+            System.out.println("Found " + upcomingEvents.size() + " upcoming events via fallback method");
+        }
+        
+        return upcomingEvents;
     }
     
     /**
@@ -204,11 +214,11 @@ public class EventService {
         if (date != null) {
             filteredEvents = filteredEvents.stream()
                 .filter(event -> {
-                    if (event.getDate() == null) {
+                    if (event.getEventDate() == null) {
                         return false;
                     }
                     // Compare just the date part, ignoring time
-                    return isSameDay(event.getDate(), date);
+                    return isSameDay(event.getEventDate(), date);
                 })
                 .collect(Collectors.toList());
         }
@@ -236,6 +246,24 @@ public class EventService {
     }
     
     /**
+     * Gets all unique locations where events are held
+     * 
+     * @return List of location strings
+     */
+    public List<String> getAllLocations() {
+        List<Event> events = eventRepository.findAll();
+        Set<String> locations = new HashSet<>();
+        
+        for (Event event : events) {
+            if (event.getLocation() != null && !event.getLocation().isEmpty()) {
+                locations.add(event.getLocation());
+            }
+        }
+        
+        return new ArrayList<>(locations);
+    }
+    
+   /**
      * Recommends an event type based on event details
      * 
      * @param event The event to analyze

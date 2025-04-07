@@ -15,15 +15,19 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.emma.model.Event;
 import com.emma.service.EventService;
+import com.emma.service.ServiceFactory;
 
 
 public class SearchController extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private EventService eventService;
     
+    /**
+     * Constructor using ServiceFactory to get EventService
+     */
     public SearchController() {
         super();
-        eventService = new EventService();
+        eventService = ServiceFactory.getEventService();
     }
     
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
@@ -59,6 +63,7 @@ public class SearchController extends HttpServlet {
         doGet(request, response);
     }
     
+    // Remaining methods stay the same as in the original implementation
     private void searchEvents(HttpServletRequest request, HttpServletResponse response) 
             throws SQLException, ServletException, IOException, ParseException {
         String keyword = request.getParameter("q");
