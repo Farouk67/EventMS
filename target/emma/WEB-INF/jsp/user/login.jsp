@@ -3,7 +3,7 @@
 
 <jsp:include page="/WEB-INF/jsp/common/header.jsp" />
 <jsp:include page="/WEB-INF/jsp/common/navigation.jsp" />
-<jsp:include page="/WEB-INF/jsp/common/footer.jsp" />
+
 
 <div class="container mt-5">
     <div class="row">

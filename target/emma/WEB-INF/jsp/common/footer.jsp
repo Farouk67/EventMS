@@ -6,7 +6,7 @@
             <div class="col-md-4 mb-3">
                 <h5>Emma's Event Management</h5>
                 <p>Making your events memorable since 2025</p>
-                <img src="${pageContext.request.contextPath}/images/logow.png" alt="Emma's Event Management" 
+                <img src="${pageContext.request.contextPath}/images/logo.png" alt="Emma's Event Management" 
                     style="max-height: 100px; max-width: 250px; margin: 10px 0; float: left;" 
                     class="footer-logo">
             </div>
@@ -15,7 +15,7 @@
                 <ul class="list-unstyled">
                     <li><a href="${pageContext.request.contextPath}/events/list" class="text-light">All Events</a></li>
                     <li><a href="${pageContext.request.contextPath}/search" class="text-light">Search Events</a></li>
-                    <li><a href="${pageContext.request.contextPath}/events/new" class="text-light">Create Event</a></li>
+                    <li><a href="${pageContext.request.contextPath}/events/create" class="text-light">Create Event</a></li>
                 </ul>
             </div>
             <div class="col-md-4 mb-3">

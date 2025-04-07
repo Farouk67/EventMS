@@ -172,6 +172,4 @@ public class RSVPWebService {
                     .build();
         }
     }
-
-    // Remaining methods as in the original implementation
 }

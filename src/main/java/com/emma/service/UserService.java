@@ -87,6 +87,7 @@ public class UserService {
             }
         }
         
+        System.out.println("Found " + rsvpedEvents.size() + " RSVP'd events for user " + userId);
         return rsvpedEvents;
     }
     
@@ -187,90 +188,6 @@ public class UserService {
         }
         
         return userRepository.findByUsername(username) != null;
-    }
-    
-    /**
-     * Update a user's profile information
-     * 
-     * @param user The user with updated information
-     */
-    public void updateUserProfile(User user) {
-        if (user == null || user.getId() <= 0) {
-            throw new IllegalArgumentException("Invalid user");
-        }
-        
-        User existingUser = getUserById(user.getId());
-        if (existingUser == null) {
-            throw new IllegalArgumentException("User not found");
-        }
-        
-        // Don't allow changing username or email to one that's already taken
-        if (!existingUser.getUsername().equals(user.getUsername()) && isUsernameTaken(user.getUsername())) {
-            throw new IllegalArgumentException("Username is already taken");
-        }
-        
-        if (!existingUser.getEmail().equals(user.getEmail()) && isEmailTaken(user.getEmail())) {
-            throw new IllegalArgumentException("Email is already taken");
-        }
-        
-        // Don't update password if it's empty (meaning no change)
-        if (user.getPassword() == null || user.getPassword().isEmpty()) {
-            user.setPassword(existingUser.getPassword());
-        } else {
-            // Hash the new password
-            String hashedPassword = hashPassword(user.getPassword());
-            if (hashedPassword != null) {
-                user.setPassword(hashedPassword);
-            }
-        }
-        
-        // Preserve registration date
-        user.setRegisteredDate(existingUser.getRegisteredDate());
-        
-        // Update the user
-        userRepository.save(user);
-    }
-    
-    /**
-     * Change a user's password
-     * 
-     * @param userId The ID of the user
-     * @param currentPassword The current password for verification
-     * @param newPassword The new password to set
-     * @return true if password was changed successfully, false otherwise
-     */
-    public boolean changePassword(int userId, String currentPassword, String newPassword) {
-        User user = getUserById(userId);
-        if (user == null) {
-            return false;
-        }
-        
-        // Verify current password
-        String hashedCurrentPassword = hashPassword(currentPassword);
-        if (hashedCurrentPassword == null || !hashedCurrentPassword.equals(user.getPassword())) {
-            return false;
-        }
-        
-        // Set new password
-        String hashedNewPassword = hashPassword(newPassword);
-        if (hashedNewPassword != null) {
-            user.setPassword(hashedNewPassword);
-            userRepository.save(user);
-            return true;
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Delete a user account
-     * 
-     * @param userId The ID of the user to delete
-     */
-    public void deleteUser(int userId) {
-        if (userRepository.existsById(userId)) {
-            userRepository.deleteById(userId);
-        }
     }
     
     /**

@@ -4,13 +4,10 @@ import com.emma.model.Event;
 import com.emma.service.EventService;
 import com.emma.service.ServiceFactory;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -35,13 +32,19 @@ public class EventWebService {
      * @return JSON response with upcoming events
      */
     @GET
-    @Path("/api/upcoming")
+    @Path("/upcoming")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUpcomingEvents() {
         try {
             List<Event> upcomingEvents = eventService.getUpcomingEvents();
             
-            // Create a custom JSON response
+            // Option 1: Just return the list directly
+            return Response.status(Response.Status.OK)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(gson.toJson(upcomingEvents))
+                    .build();
+            
+            /* Option 2: If you want to use the custom JSON format with JsonObject and JsonArray:
             JsonObject responseJson = new JsonObject();
             JsonArray eventsArray = new JsonArray();
             
@@ -79,26 +82,22 @@ public class EventWebService {
             // Set the events array in the response
             responseJson.add("events", eventsArray);
             
-            // Return response with 200 OK status
             return Response.status(Response.Status.OK)
                     .type(MediaType.APPLICATION_JSON)
                     .entity(gson.toJson(responseJson))
                     .build();
+            */
+            
         } catch (Exception e) {
             // Log the error
             System.err.println("Error fetching upcoming events: " + e.getMessage());
             e.printStackTrace();
             
-            // Return an empty events array instead of an error
-            JsonObject errorResponse = new JsonObject();
-            errorResponse.add("events", new JsonArray());
-            
-            return Response.status(Response.Status.OK)
+            // Return an error response
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .type(MediaType.APPLICATION_JSON)
-                    .entity(gson.toJson(errorResponse))
+                    .entity("{\"error\": \"Failed to fetch upcoming events\"}")
                     .build();
         }
     }
-
-    // Remaining methods stay the same
 }

@@ -25,9 +25,25 @@
                             <label for="type" class="form-label">Event Type <span class="text-danger">*</span></label>
                             <select id="type" name="type" class="form-select" required>
                                 <option value="">Select Event Type</option>
-                                <c:forEach var="type" items="${eventTypes}">
-                                    <option value="${type}">${type}</option>
-                                </c:forEach>
+                                <c:choose>
+                                    <c:when test="${not empty eventTypes}">
+                                        <c:forEach var="type" items="${eventTypes}">
+                                            <option value="${type}">${type}</option>
+                                        </c:forEach>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <!-- Fallback options if event types aren't loaded -->
+                                        <option value="Conference">Conference</option>
+                                        <option value="Workshop">Workshop</option>
+                                        <option value="Seminar">Seminar</option>
+                                        <option value="Party">Party</option>
+                                        <option value="Concert">Concert</option>
+                                        <option value="Exhibition">Exhibition</option>
+                                        <option value="Sports">Sports</option>
+                                        <option value="Social">Social</option>
+                                        <option value="Other">Other</option>
+                                    </c:otherwise>
+                                </c:choose>
                             </select>
                         </div>
                         
@@ -62,6 +78,57 @@
     </div>
 </div>
 
-<script src="${pageContext.request.contextPath}/js/eventValidation.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const eventForm = document.getElementById('eventForm');
+    
+    eventForm.addEventListener('submit', function(event) {
+        // Basic form validation
+        const name = document.getElementById('name').value.trim();
+        const type = document.getElementById('type').value;
+        const date = document.getElementById('date').value;
+        const location = document.getElementById('location').value.trim();
+        const capacity = document.getElementById('capacity').value;
+        const description = document.getElementById('description').value.trim();
+        
+        let isValid = true;
+        
+        // Check if fields are empty
+        if (!name) {
+            alert('Event name is required');
+            isValid = false;
+        } else if (!type) {
+            alert('Event type is required');
+            isValid = false;
+        } else if (!date) {
+            alert('Event date is required');
+            isValid = false;
+        } else if (!location) {
+            alert('Event location is required');
+            isValid = false;
+        } else if (!capacity || capacity < 1) {
+            alert('Event capacity must be at least 1');
+            isValid = false;
+        } else if (!description) {
+            alert('Event description is required');
+            isValid = false;
+        }
+        
+        // Check if date is in the future
+        const eventDate = new Date(date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (eventDate < today) {
+            alert('Event date must be in the future');
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            event.preventDefault();
+        }
+    });
+});
+</script>
 
-<jsp:include page="../common/footer.jsp" />
+<jsp:include page="/WEB-INF/jsp/common/footer.jsp" />

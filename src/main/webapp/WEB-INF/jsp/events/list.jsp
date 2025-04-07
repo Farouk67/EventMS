@@ -93,4 +93,4 @@
     </c:if>
 </div>
 
-<jsp:include page="../common/footer.jsp" />
+<jsp:include page="/WEB-INF/jsp/common/footer.jsp" />

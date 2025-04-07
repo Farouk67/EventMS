@@ -51,19 +51,32 @@ public class EventService {
      * 
      * @return List of event type strings
      */
-    public List<String> getAllEventTypes() {
-        List<Event> events = eventRepository.findAll();
-        Set<String> eventTypes = new HashSet<>();
-        
-        for (Event event : events) {
-            if (event.getType() != null && !event.getType().isEmpty()) {
-                eventTypes.add(event.getType());
-            }
+ 
+public List<String> getAllEventTypes() {
+    List<Event> events = eventRepository.findAll();
+    Set<String> eventTypes = new HashSet<>();
+    
+    for (Event event : events) {
+        if (event.getType() != null && !event.getType().isEmpty()) {
+            eventTypes.add(event.getType());
         }
-        
-        return new ArrayList<>(eventTypes);
     }
-
+    
+    // Add default event types if none exist yet
+    if (eventTypes.isEmpty()) {
+        eventTypes.add("Conference");
+        eventTypes.add("Workshop");
+        eventTypes.add("Seminar");
+        eventTypes.add("Party");
+        eventTypes.add("Concert");
+        eventTypes.add("Exhibition");
+        eventTypes.add("Sports");
+        eventTypes.add("Social");
+        eventTypes.add("Other");
+    }
+    
+    return new ArrayList<>(eventTypes);
+}
     /**
      * Filters events by their type
      * 
