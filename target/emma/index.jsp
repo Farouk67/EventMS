@@ -86,15 +86,17 @@
 </div>
 
 <!-- JavaScript to load upcoming events -->
-<!-- JavaScript to load upcoming events -->
 <script>
-   document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
     console.log("Loading upcoming events...");
     const contextPath = '${pageContext.request.contextPath}'; // Evaluate JSP expression once
     
-    fetch(contextPath + '/api/events/upcoming')
+    fetch(contextPath + '/events/api/upcoming')
         .then(response => {
-            // Rest of your fetch code unchanged
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.status);
+            }
+            return response.json();
         })
         .then(events => {
             console.log("Events received:", events);
@@ -108,7 +110,27 @@
                 events.forEach(event => {
                     console.log("Processing event:", event.id, event.name);
                     
-                    // Format the date code unchanged
+                    // Format the date
+                    let formattedDate = 'Date TBD';
+                    if (event.eventDate) {
+                        const date = new Date(event.eventDate);
+                        formattedDate = date.toLocaleDateString('en-US', {
+                            weekday: 'short',
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                    }
+                    
+                    // Prepare short description
+                    let shortDesc = 'No description available';
+                    if (event.description) {
+                        shortDesc = event.description.length > 100 
+                            ? event.description.substring(0, 97) + '...' 
+                            : event.description;
+                    }
                     
                     // Add event card HTML
                     rowHTML += `
@@ -145,4 +167,4 @@
 });
 </script>
 
-<jsp:include page="WEB-INF/jsp/common/footer.jsp" />
+<jsp:include page="/WEB-INF/jsp/common/footer.jsp" />

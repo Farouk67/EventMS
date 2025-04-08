@@ -1,20 +1,22 @@
 package com.emma.repository;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.emma.model.RSVP;
+import com.emma.util.DBConnectionPool;
 
 /**
- * Repository for RSVP entities
+ * Repository for RSVP entities using database storage
  */
 public class RSVPRepository {
-    
-    // In-memory storage for RSVPs (would be replaced with database in production)
-    private static List<RSVP> rsvps = new ArrayList<>();
-    private static int nextId = 1;
     
     /**
      * Find RSVP by ID
@@ -23,9 +25,22 @@ public class RSVPRepository {
      * @return Optional containing the RSVP if found
      */
     public Optional<RSVP> findById(int id) {
-        return rsvps.stream()
-                .filter(rsvp -> rsvp.getId() == id)
-                .findFirst();
+        try (Connection conn = DBConnectionPool.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM rsvp WHERE id = ?")) {
+            
+            pstmt.setInt(1, id);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapResultSetToRSVP(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error finding RSVP by ID: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return Optional.empty();
     }
     
     /**
@@ -35,9 +50,24 @@ public class RSVPRepository {
      * @return List of RSVPs for the user
      */
     public List<RSVP> findByUserId(Integer userId) {
-        return rsvps.stream()
-                .filter(rsvp -> rsvp.getUserId() == userId)
-                .collect(Collectors.toList());
+        List<RSVP> userRsvps = new ArrayList<>();
+        
+        try (Connection conn = DBConnectionPool.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM rsvp WHERE user_id = ?")) {
+            
+            pstmt.setInt(1, userId);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    userRsvps.add(mapResultSetToRSVP(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error finding RSVPs by user ID: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return userRsvps;
     }
     
     /**
@@ -47,9 +77,24 @@ public class RSVPRepository {
      * @return List of RSVPs for the event
      */
     public List<RSVP> findByEventId(int eventId) {
-        return rsvps.stream()
-                .filter(rsvp -> rsvp.getEventId() == eventId)
-                .collect(Collectors.toList());
+        List<RSVP> eventRsvps = new ArrayList<>();
+        
+        try (Connection conn = DBConnectionPool.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM rsvp WHERE event_id = ?")) {
+            
+            pstmt.setInt(1, eventId);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    eventRsvps.add(mapResultSetToRSVP(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error finding RSVPs by event ID: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return eventRsvps;
     }
     
     /**
@@ -60,9 +105,23 @@ public class RSVPRepository {
      * @return Optional containing the RSVP if found
      */
     public Optional<RSVP> findByUserIdAndEventId(Integer userId, int eventId) {
-        return rsvps.stream()
-                .filter(rsvp -> rsvp.getUserId() == userId && rsvp.getEventId() == eventId)
-                .findFirst();
+        try (Connection conn = DBConnectionPool.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM rsvp WHERE user_id = ? AND event_id = ?")) {
+            
+            pstmt.setInt(1, userId);
+            pstmt.setInt(2, eventId);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapResultSetToRSVP(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error finding RSVP by user ID and event ID: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return Optional.empty();
     }
     
     /**
@@ -72,15 +131,52 @@ public class RSVPRepository {
      * @return The ID of the saved RSVP
      */
     public int save(RSVP rsvp) {
-        // For new RSVP
         if (rsvp.getId() <= 0) {
-            rsvp.setId(nextId++);
-            rsvps.add(rsvp);
+            return insert(rsvp);
         } else {
-            // For existing RSVP
             update(rsvp);
+            return rsvp.getId();
         }
-        return rsvp.getId();
+    }
+    
+    /**
+     * Insert a new RSVP
+     * 
+     * @param rsvp The RSVP to insert
+     * @return The ID of the inserted RSVP
+     */
+    private int insert(RSVP rsvp) {
+        try (Connection conn = DBConnectionPool.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(
+                 "INSERT INTO rsvp (user_id, event_id, status, responded_at, notes) VALUES (?, ?, ?, ?, ?)",
+                 Statement.RETURN_GENERATED_KEYS)) {
+            
+            pstmt.setInt(1, rsvp.getUserId());
+            pstmt.setInt(2, rsvp.getEventId());
+            pstmt.setString(3, rsvp.getStatus() != null ? rsvp.getStatus() : "attending");
+            
+            // Set responded_at to current time if not provided
+            if (rsvp.getRespondedAt() != null) {
+                pstmt.setTimestamp(4, new Timestamp(rsvp.getRespondedAt().getTime()));
+            } else {
+                pstmt.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+            }
+            
+            pstmt.setString(5, rsvp.getNotes());
+            
+            pstmt.executeUpdate();
+            
+            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error saving RSVP: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return -1;
     }
     
     /**
@@ -89,11 +185,28 @@ public class RSVPRepository {
      * @param rsvp The RSVP to update
      */
     public void update(RSVP rsvp) {
-        for (int i = 0; i < rsvps.size(); i++) {
-            if (rsvps.get(i).getId() == rsvp.getId()) {
-                rsvps.set(i, rsvp);
-                break;
+        try (Connection conn = DBConnectionPool.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(
+                 "UPDATE rsvp SET user_id = ?, event_id = ?, status = ?, responded_at = ?, notes = ? WHERE id = ?")) {
+            
+            pstmt.setInt(1, rsvp.getUserId());
+            pstmt.setInt(2, rsvp.getEventId());
+            pstmt.setString(3, rsvp.getStatus() != null ? rsvp.getStatus() : "attending");
+            
+            // Set responded_at to current time if not provided
+            if (rsvp.getRespondedAt() != null) {
+                pstmt.setTimestamp(4, new Timestamp(rsvp.getRespondedAt().getTime()));
+            } else {
+                pstmt.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
             }
+            
+            pstmt.setString(5, rsvp.getNotes());
+            pstmt.setInt(6, rsvp.getId());
+            
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Error updating RSVP: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
@@ -103,7 +216,16 @@ public class RSVPRepository {
      * @param id The ID of the RSVP to delete
      */
     public void delete(int id) {
-        rsvps.removeIf(rsvp -> rsvp.getId() == id);
+        try (Connection conn = DBConnectionPool.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement("DELETE FROM rsvp WHERE id = ?")) {
+            
+            pstmt.setInt(1, id);
+            pstmt.executeUpdate();
+            
+        } catch (SQLException e) {
+            System.err.println("Error deleting RSVP: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
     /**
@@ -113,8 +235,41 @@ public class RSVPRepository {
      * @return The number of RSVPs for the event
      */
     public int countByEventId(int eventId) {
-        return (int) rsvps.stream()
-                .filter(rsvp -> rsvp.getEventId() == eventId)
-                .count();
+        try (Connection conn = DBConnectionPool.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement("SELECT COUNT(*) FROM rsvp WHERE event_id = ?")) {
+            
+            pstmt.setInt(1, eventId);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error counting RSVPs by event ID: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return 0;
+    }
+    
+    /**
+     * Map a database result set to an RSVP object
+     * 
+     * @param rs The result set
+     * @return Mapped RSVP object
+     * @throws SQLException if a database access error occurs
+     */
+    private RSVP mapResultSetToRSVP(ResultSet rs) throws SQLException {
+        RSVP rsvp = new RSVP();
+        
+        rsvp.setId(rs.getInt("id"));
+        rsvp.setUserId(rs.getInt("user_id"));
+        rsvp.setEventId(rs.getInt("event_id"));
+        rsvp.setStatus(rs.getString("status"));
+        rsvp.setRespondedAt(rs.getTimestamp("responded_at"));
+        rsvp.setNotes(rs.getString("notes"));
+        
+        return rsvp;
     }
 }

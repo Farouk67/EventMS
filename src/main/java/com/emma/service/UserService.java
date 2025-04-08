@@ -92,34 +92,49 @@ public class UserService {
     }
     
     /**
-     * Authenticate a user with username and password
-     * 
-     * @param username The username to check
-     * @param password The password to verify
-     * @return The authenticated user or null if authentication fails
-     */
-    public User authenticateUser(String username, String password) {
-        if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
-            return null;
-        }
-        
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            return null;
-        }
-        
-        // Verify password
-        String hashedPassword = hashPassword(password);
-        if (hashedPassword != null && hashedPassword.equals(user.getPassword())) {
-            // Update last login date
-            user.setLastLoginDate(new Date());
-            userRepository.save(user);
-            return user;
-        }
-        
+ * Authenticate a user with username and password
+ * 
+ * @param username The username to check
+ * @param password The password to verify
+ * @return The authenticated user or null if authentication fails
+ */
+public User authenticateUser(String username, String password) {
+    if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
         return null;
     }
     
+    User user = userRepository.findByUsername(username);
+    if (user == null) {
+        System.out.println("User not found: " + username);
+        return null;
+    }
+    
+    // For debugging
+    System.out.println("Found user: " + user.getUsername() + ", Stored password: [" + user.getPassword() + "]");
+    System.out.println("Input password: [" + password + "]");
+    
+    // Try direct password comparison first (for development/testing)
+    if (password.equals(user.getPassword())) {
+        // Update last login date
+        user.setLastLoginDate(new Date());
+        userRepository.save(user);
+        return user;
+    }
+    
+    // Then try hashed password comparison
+    String hashedPassword = hashPassword(password);
+    System.out.println("Hashed input password: [" + hashedPassword + "]");
+    
+    if (hashedPassword != null && hashedPassword.equals(user.getPassword())) {
+        // Update last login date
+        user.setLastLoginDate(new Date());
+        userRepository.save(user);
+        return user;
+    }
+    
+    System.out.println("Password mismatch for user: " + username);
+    return null;
+}
     /**
      * Register a new user in the system
      * 

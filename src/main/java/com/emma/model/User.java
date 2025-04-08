@@ -1,63 +1,81 @@
 package com.emma.model;
 
 import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
 
 /**
- * Represents a user in the Event Management Platform.
+ * Model class for User entity
  */
 public class User {
     private int id;
     private String username;
     private String email;
-    private String password; // Stored as hashed value
+    private String password;
     private String firstName;
     private String lastName;
-    private String profileImageUrl;
     private String bio;
     private Date registeredDate;
     private Date lastLoginDate;
     private boolean isActive;
-    private String role; // "user", "admin", etc.
+    private String role;
     
-    private List<Event> createdEvents;
-    private List<RSVP> rsvps;
-    
-    // Constructors
+    /**
+     * Default constructor
+     */
     public User() {
-        this.createdEvents = new ArrayList<>();
-        this.rsvps = new ArrayList<>();
+        this.isActive = true;
+        this.role = "user";
     }
     
-    public User(int id, String username, String email, String password, 
-                String firstName, String lastName) {
+    /**
+     * Constructor with essential fields
+     * 
+     * @param id The user ID
+     * @param username The username
+     * @param email The email address
+     * @param password The password
+     */
+    public User(int id, String username, String email, String password) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.isActive = true;
+        this.role = "user";
+    }
+    
+    /**
+     * Constructor with all fields
+     * 
+     * @param id The user ID
+     * @param username The username
+     * @param email The email address
+     * @param password The password
+     * @param firstName The first name
+     * @param lastName The last name
+     * @param bio The user biography
+     * @param registeredDate The registration date
+     * @param lastLoginDate The last login date
+     * @param isActive Whether the user is active
+     * @param role The user role
+     */
+    public User(int id, String username, String email, String password, String firstName, 
+                String lastName, String bio, Date registeredDate, Date lastLoginDate, 
+                boolean isActive, String role) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.registeredDate = new Date();
-        this.isActive = true;
-        this.role = "user";
-        this.createdEvents = new ArrayList<>();
-        this.rsvps = new ArrayList<>();
+        this.bio = bio;
+        this.registeredDate = registeredDate;
+        this.lastLoginDate = lastLoginDate;
+        this.isActive = isActive;
+        this.role = role;
     }
     
-    public User(int id, String username, String email, String password) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.registeredDate = new Date();
-        this.isActive = true;
-        this.role = "user";
-        this.createdEvents = new ArrayList<>();
-        this.rsvps = new ArrayList<>();
-    }
-
     // Getters and Setters
+    
     public int getId() {
         return id;
     }
@@ -106,18 +124,6 @@ public class User {
         this.lastName = lastName;
     }
     
-    public String getFullName() {
-        return firstName + " " + lastName;
-    }
-    
-    public String getProfileImageUrl() {
-        return profileImageUrl;
-    }
-    
-    public void setProfileImageUrl(String profileImageUrl) {
-        this.profileImageUrl = profileImageUrl;
-    }
-    
     public String getBio() {
         return bio;
     }
@@ -146,8 +152,8 @@ public class User {
         return isActive;
     }
     
-    public void setActive(boolean active) {
-        isActive = active;
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
     }
     
     public String getRole() {
@@ -158,39 +164,9 @@ public class User {
         this.role = role;
     }
     
-    public List<Event> getCreatedEvents() {
-        return createdEvents;
-    }
-    
-    public void setCreatedEvents(List<Event> createdEvents) {
-        this.createdEvents = createdEvents;
-    }
-    
-    public void addCreatedEvent(Event event) {
-        this.createdEvents.add(event);
-    }
-    
-    public List<RSVP> getRsvps() {
-        return rsvps;
-    }
-    
-    public void setRsvps(List<RSVP> rsvps) {
-        this.rsvps = rsvps;
-    }
-    
-    public void addRSVP(RSVP rsvp) {
-        this.rsvps.add(rsvp);
-    }
-    
     @Override
     public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", role='" + role + '\'' +
-                '}';
+        return "User [id=" + id + ", username=" + username + ", email=" + email + 
+               ", firstName=" + firstName + ", lastName=" + lastName + "]";
     }
 }

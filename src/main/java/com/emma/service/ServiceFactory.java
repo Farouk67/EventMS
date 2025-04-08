@@ -9,7 +9,7 @@ import com.emma.repository.UserRepository;
  */
 public class ServiceFactory {
     
-    // Repositories
+    // Repositories - created once and reused
     private static final EventRepository eventRepository = new EventRepository();
     private static final RSVPRepository rsvpRepository = new RSVPRepository();
     private static final UserRepository userRepository = new UserRepository();
@@ -27,25 +27,23 @@ public class ServiceFactory {
     /**
      * Initialize all services with their dependencies in the correct order to avoid circular dependencies
      */
-    private static void initializeServices() {
-        try {
-            // First create EventService without RSVPService dependency
-            eventService = new EventService(eventRepository);
-            
-            // Then create RSVPService
-            rsvpService = new RSVPService(rsvpRepository, eventRepository);
-            
-            // Now set RSVPService in EventService
-            eventService.setRsvpService(rsvpService);
-            
-            // Finally create UserService
-            userService = new UserService(userRepository);
-            
-            System.out.println("All services initialized successfully");
-        } catch (Exception e) {
-            System.err.println("Failed to initialize services: " + e.getMessage());
-            e.printStackTrace();
+    private static synchronized void initializeServices() {
+        // Check if services are already initialized
+        if (eventService != null && rsvpService != null && userService != null) {
+            return;
         }
+        
+        // First create EventService without RSVPService dependency
+        eventService = new EventService(eventRepository);
+        
+        // Then create RSVPService with EventRepository
+        rsvpService = new RSVPService(rsvpRepository, eventRepository);
+        
+        // Now set RSVPService in EventService to complete the dependency
+        eventService.setRsvpService(rsvpService);
+        
+        // Finally create UserService with access to the other services through ServiceFactory
+        userService = new UserService(userRepository);
     }
     
     /**
@@ -85,9 +83,11 @@ public class ServiceFactory {
      * Reset all services (for testing purposes)
      */
     public static void resetServices() {
-        eventService = null;
-        rsvpService = null;
-        userService = null;
-        initializeServices();
+        synchronized (ServiceFactory.class) {
+            eventService = null;
+            rsvpService = null;
+            userService = null;
+            initializeServices();
+        }
     }
 }

@@ -17,6 +17,7 @@ com\emma\dao\EventDAO.class
 com\emma\controller\RSVPController.class
 com\emma\service\RSVPService.class
 com\emma\dao\RSVPDAO.class
+com\emma\filters\DebugFilter.class
 com\emma\service\UserService.class
 com\emma\dao\EventTypeDAO.class
 com\emma\model\Event.class

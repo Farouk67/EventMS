@@ -18,7 +18,8 @@ public class EventDAO {
         
         try {
             conn = DBConnectionPool.getConnection();
-            String sql = "INSERT INTO event (name, description, event_date, location, created_by, event_type_id, capacity, created_at, updated_at) " +
+            String sql = "INSERT INTO event (name, description, event_date, location, created_by, " +
+                         "event_type_id, capacity, created_at, updated_at) " +
                          "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                          
             pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -122,6 +123,7 @@ public class EventDAO {
         
         try {
             conn = DBConnectionPool.getConnection();
+            // Update to use the correct table name
             String deleteRSVPs = "DELETE FROM rsvp WHERE event_id = ?";
             pstmt = conn.prepareStatement(deleteRSVPs);
             pstmt.setInt(1, eventId);
@@ -174,17 +176,78 @@ public class EventDAO {
         Timestamp eventDateTimestamp = rs.getTimestamp("event_date");
         if (eventDateTimestamp != null) {
             event.setEventDate(new Date(eventDateTimestamp.getTime()));
-            event.setDate(new Date(eventDateTimestamp.getTime())); // Keep both date fields in sync
+            // Keep both date fields in sync if the Event class has both
+            if (hasMethod(event, "setDate")) {
+                event.setDate(new Date(eventDateTimestamp.getTime())); 
+            }
         }
         
         event.setLocation(rs.getString("location"));
-        event.setCreatedBy(rs.getInt("created_by"));
-        event.setEventTypeId(rs.getInt("event_type_id"));
-        event.setEventTypeName(rs.getString("event_type_name"));
+        
+        // Get created_by value safely
+        int createdBy = rs.getInt("created_by");
+        if (!rs.wasNull()) {
+            event.setCreatedBy(createdBy);
+            // If the Event class has the organizer ID field, set it too
+            if (hasMethod(event, "setOrganizerId")) {
+                event.setOrganizerId(createdBy);
+            }
+        }
+        
+        // Get event_type_id safely
+        int eventTypeId = rs.getInt("event_type_id");
+        if (!rs.wasNull()) {
+            event.setEventTypeId(eventTypeId);
+        }
+        
+        // Get event_type_name and set it if the method exists
+        String eventTypeName = rs.getString("event_type_name");
+        if (eventTypeName != null) {
+            if (hasMethod(event, "setEventTypeName")) {
+                event.setEventTypeName(eventTypeName);
+            }
+            if (hasMethod(event, "setType")) {
+                event.setType(eventTypeName);
+            }
+        }
+        
         event.setCapacity(rs.getInt("capacity"));
-        event.setCreatedAt(rs.getTimestamp("created_at"));
-        event.setUpdatedAt(rs.getTimestamp("updated_at"));
+        
+        // Set attendee_count if column exists
+        try {
+            int attendeeCount = rs.getInt("attendee_count");
+            if (!rs.wasNull()) {
+                event.setAttendeeCount(attendeeCount);
+            }
+        } catch (SQLException e) {
+            // Column might not exist, use default
+            event.setAttendeeCount(0);
+        }
+        
+        // Get timestamps
+        Timestamp createdAt = rs.getTimestamp("created_at");
+        if (createdAt != null) {
+            event.setCreatedAt(createdAt);
+        }
+        
+        Timestamp updatedAt = rs.getTimestamp("updated_at");
+        if (updatedAt != null) {
+            event.setUpdatedAt(updatedAt);
+        }
         
         return event;
+    }
+    
+    /**
+     * Helper method to check if a method exists on an object
+     * Used to handle differences in the Event class implementation
+     */
+    private boolean hasMethod(Object obj, String methodName) {
+        try {
+            obj.getClass().getMethod(methodName, java.util.Date.class);
+            return true;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
     }
 }

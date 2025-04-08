@@ -140,10 +140,23 @@ public class UserController extends HttpServlet {
     }
     
     private void processLogin(HttpServletRequest request, HttpServletResponse response) 
-            throws SQLException, IOException, ServletException {
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        
+        throws SQLException, IOException, ServletException {
+    // Get form parameters
+    String username = request.getParameter("username");
+    String password = request.getParameter("password");
+    
+    System.out.println("Processing login for user: " + username);
+    
+    // Basic validation
+    if (username == null || password == null || username.trim().isEmpty() || password.trim().isEmpty()) {
+        request.setAttribute("errorMessage", "Username and password are required");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/user/login.jsp");
+        dispatcher.forward(request, response);
+        return;
+    }
+    
+    try {
+        // Authenticate user
         User user = userService.authenticateUser(username, password);
         
         if (user != null) {
@@ -151,16 +164,33 @@ public class UserController extends HttpServlet {
             HttpSession session = request.getSession();
             session.setAttribute("userId", user.getId());
             session.setAttribute("username", user.getUsername());
+            if (user.getRole() != null) {
+                session.setAttribute("userRole", user.getRole());
+            } else {
+                session.setAttribute("userRole", "user"); // Default role
+            }
+            
+            System.out.println("User authenticated successfully: " + username + " (ID: " + user.getId() + ")");
             
             // Redirect to events page
             response.sendRedirect(request.getContextPath() + "/events/list");
         } else {
             // Failed login
+            System.out.println("Authentication failed for user: " + username);
             request.setAttribute("errorMessage", "Invalid username or password");
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/user/login.jsp");
             dispatcher.forward(request, response);
         }
+    } catch (Exception e) {
+        // Log any exceptions
+        System.err.println("Error during login process: " + e.getMessage());
+        e.printStackTrace();
+        
+        request.setAttribute("errorMessage", "An error occurred during login. Please try again.");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/user/login.jsp");
+        dispatcher.forward(request, response);
     }
+}
     
     private void processLogout(HttpServletRequest request, HttpServletResponse response) 
             throws IOException {

@@ -3,47 +3,58 @@ package com.emma.model;
 import java.util.Date;
 
 /**
- * Represents an RSVP (Répondez s'il vous plaît) response for an event.
+ * Model class for RSVP entity
  */
 public class RSVP {
     private int id;
     private int userId;
     private int eventId;
-    private String status; // "yes", "no", "maybe"
+    private String status;
     private Date respondedAt;
     private String notes;
     
-    // User and Event objects for relationship mapping
-    private User user;
-    private Event event;
-    
-    // Constructors
+    /**
+     * Default constructor
+     */
     public RSVP() {
     }
     
-    public RSVP(int id, int userId, int eventId, String status) {
+    /**
+     * Constructor with essential fields
+     * 
+     * @param id The RSVP ID
+     * @param userId The user ID
+     * @param eventId The event ID
+     */
+    public RSVP(int id, int userId, int eventId) {
+        this.id = id;
+        this.userId = userId;
+        this.eventId = eventId;
+        this.status = "attending";
+        this.respondedAt = new Date();
+    }
+    
+    /**
+     * Constructor with all fields
+     * 
+     * @param id The RSVP ID
+     * @param userId The user ID
+     * @param eventId The event ID
+     * @param status The RSVP status
+     * @param respondedAt The response time
+     * @param notes Any additional notes
+     */
+    public RSVP(int id, int userId, int eventId, String status, Date respondedAt, String notes) {
         this.id = id;
         this.userId = userId;
         this.eventId = eventId;
         this.status = status;
-        this.respondedAt = new Date();
-    }
-    
-    public RSVP(int id, int userId, int eventId, String status, String notes) {
-        this(id, userId, eventId, status);
+        this.respondedAt = respondedAt;
         this.notes = notes;
     }
     
-    public RSVP(int id, Integer userId, int eventId) {
-        this.id = id;
-        this.userId = userId;
-        this.eventId = eventId;
-        this.respondedAt = new Date();
-      
-        this.status = "pending"; // or some other default value
-    }
-
     // Getters and Setters
+    
     public int getId() {
         return id;
     }
@@ -92,36 +103,9 @@ public class RSVP {
         this.notes = notes;
     }
     
-    public User getUser() {
-        return user;
-    }
-    
-    public void setUser(User user) {
-        this.user = user;
-        if (user != null) {
-            this.userId = user.getId();
-        }
-    }
-    
-    public Event getEvent() {
-        return event;
-    }
-    
-    public void setEvent(Event event) {
-        this.event = event;
-        if (event != null) {
-            this.eventId = event.getId();
-        }
-    }
-    
     @Override
     public String toString() {
-        return "RSVP{" +
-                "id=" + id +
-                ", userId=" + userId +
-                ", eventId=" + eventId +
-                ", status='" + status + '\'' +
-                ", respondedAt=" + respondedAt +
-                '}';
+        return "RSVP [id=" + id + ", userId=" + userId + ", eventId=" + eventId + 
+               ", status=" + status + ", respondedAt=" + respondedAt + "]";
     }
 }

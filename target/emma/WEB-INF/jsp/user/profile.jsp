@@ -2,56 +2,97 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
-<jsp:include page="/WEB-INF/jsp/common/header.jsp" />
-<jsp:include page="/WEB-INF/jsp/common/navigation.jsp" />
+<jsp:include page="../common/header.jsp" />
+<jsp:include page="../common/navigation.jsp" />
 
-<div class="container">
-    <div class="page-header">
-        <h1>My Profile</h1>
-    </div>
-    
-    <div class="profile-container">
-        <div class="profile-section">
-            <h2>User Information</h2>
-            <div class="profile-info">
-                <div class="info-item">
-                    <span class="label">Username:</span>
-                    <span class="value">${user.username}</span>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">My Profile</h4>
                 </div>
-                <div class="info-item">
-                    <span class="label">Email:</span>
-                    <span class="value">${user.email}</span>
+                <div class="card-body">
+                    <c:if test="${empty user}">
+                        <div class="alert alert-warning">
+                            User information not available. Please <a href="${pageContext.request.contextPath}/users/login">login</a> to view your profile.
+                        </div>
+                    </c:if>
+                    
+                    <c:if test="${not empty user}">
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <h5 class="border-bottom pb-2">User Information</h5>
+                                <div class="row mt-3">
+                                    <div class="col-md-4 text-muted">Username:</div>
+                                    <div class="col-md-8">${user.username}</div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-4 text-muted">Email:</div>
+                                    <div class="col-md-8">${user.email}</div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-4 text-muted">Member Since:</div>
+                                    <div class="col-md-8">
+                                        <c:choose>
+                                            <c:when test="${not empty user.registeredDate}">
+                                                <fmt:formatDate pattern="MMMM d, yyyy" value="${user.registeredDate}" />
+                                            </c:when>
+                                            <c:otherwise>
+                                                Not available
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-4 text-muted">Role:</div>
+                                    <div class="col-md-8">${user.role}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <h5 class="border-bottom pb-2">My Activity</h5>
+                                <div class="row mt-3">
+                                    <div class="col-md-4">
+                                        <a href="${pageContext.request.contextPath}/users/myEvents" class="btn btn-outline-primary w-100">
+                                            <i class="bi bi-calendar-event"></i> My Events
+                                        </a>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <a href="${pageContext.request.contextPath}/users/myRSVPs" class="btn btn-outline-primary w-100">
+                                            <i class="bi bi-check-circle"></i> My RSVPs
+                                        </a>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <a href="${pageContext.request.contextPath}/events/new" class="btn btn-outline-primary w-100">
+                                            <i class="bi bi-plus-circle"></i> Create Event
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="border-bottom pb-2">Account Settings</h5>
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <a href="#" class="btn btn-outline-secondary w-100" disabled>
+                                            <i class="bi bi-key"></i> Change Password
+                                        </a>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <a href="#" class="btn btn-outline-secondary w-100" disabled>
+                                            <i class="bi bi-pencil"></i> Edit Profile
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </c:if>
                 </div>
-                <div class="info-item">
-                    <span class="label">Member Since:</span>
-                    <span class="value"><fmt:formatDate pattern="MMMM d, yyyy" value="${user.registeredDate}" /></span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="profile-section">
-            <h2>My Activity</h2>
-            <div class="profile-links">
-                <a href="${pageContext.request.contextPath}/users/myEvents" class="profile-link">
-                    <i class="icon-calendar"></i>
-                    <span>My Events</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/users/myRSVPs" class="profile-link">
-                    <i class="icon-check"></i>
-                    <span>My RSVPs</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/events/new" class="profile-link">
-                    <i class="icon-plus"></i>
-                    <span>Create New Event</span>
-                </a>
-            </div>
-        </div>
-        
-        <div class="profile-section">
-            <h2>Account Settings</h2>
-            <div class="profile-actions">
-                <a href="#" class="btn btn-secondary">Change Password</a>
-                <a href="#" class="btn btn-secondary">Edit Profile</a>
             </div>
         </div>
     </div>

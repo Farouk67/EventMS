@@ -1,38 +1,64 @@
--- Insert default event types
+-- Insert event types
 INSERT INTO event_type (name, description, icon) VALUES
-('Conference', 'Professional gatherings for learning and networking', 'bi-briefcase'),
-('Workshop', 'Hands-on learning and skill development', 'bi-tools'),
-('Party', 'Social gatherings and celebrations', 'bi-music-note-beamed'),
+('Conference', 'Professional gatherings focused on specific industry topics', 'bi-briefcase'),
+('Workshop', 'Interactive sessions focused on skill development', 'bi-tools'),
+('Concert', 'Musical performances and entertainment events', 'bi-music-note-beamed'),
+('Social', 'Casual gatherings focused on networking and socializing', 'bi-people'),
+('Sports', 'Athletic competitions and sporting events', 'bi-trophy'),
 ('Exhibition', 'Displays of art, products, or information', 'bi-easel'),
-('Concert', 'Live music performances', 'bi-music-note-list'),
-('Sports', 'Athletic events and competitions', 'bi-trophy'),
-('Social', 'Community gatherings and social events', 'bi-people'),
-('Seminar', 'Educational presentations and discussions', 'bi-book'),
-('Other', 'Other types of events', 'bi-calendar-event');
+('Other', 'Miscellaneous events that dont fit other categories', 'bi-three-dots');
 
--- Insert admin user (password: admin123)
-INSERT INTO user (username, email, password, first_name, last_name, role) VALUES
-('admin', 'admin@example.com', 'admin123', 'System', 'Administrator', 'admin');
+-- Insert users
+INSERT INTO user (username, email, password, first_name, last_name, registered_date, role) VALUES
+('admin', 'admin@emmaevents.com', '12345678', 'Admin', 'User', NOW(), 'admin'),
+('jdoe', 'john.doe@example.com', '12345678', 'John', 'Doe', NOW(), 'user'),
+('jsmith', 'jane.smith@example.com', '12345678', 'Jane', 'Smith', NOW(), 'user'),
+('mwilliams', 'mike.williams@example.com', '12345678', 'Mike', 'Williams', NOW(), 'user'),
+('alexr', 'alex.rodriguez@example.com', '12345678', 'Alex', 'Rodriguez', NOW(), 'user'),
+('sarahk', 'sarah.kim@example.com', '12345678', 'Sarah', 'Kim', NOW(), 'user'),
+('michaelb', 'michael.brown@example.com', '12345678', 'Michael', 'Brown', NOW(), 'user'),
+('emilyw', 'emily.wang@example.com', '12345678', 'Emily', 'Wang', NOW(), 'user'),
+('davidl', 'david.lee@example.com', '12345678', 'David', 'Lee', NOW(), 'user');
 
--- More sample events
-INSERT INTO event (name, description, event_date, location, created_by, event_type_id, capacity) VALUES
-('Data Science Symposium', 'Exploring the latest trends in data science and analytics', '2025-09-12 10:00:00', 'Cambridge', 1, 1, 250),
-('Startup Networking Mixer', 'Connect with fellow entrepreneurs and investors', '2025-07-23 18:30:00', 'London', 1, 7, 150),
-('Photography Workshop', 'Learn advanced techniques from professional photographers', '2025-08-10 14:00:00', 'Brighton', 1, 2, 25),
-('Craft Beer Festival', 'Sample over 100 craft beers from local breweries', '2025-06-28 12:00:00', 'Bristol', 1, 3, 800),
-('AI in Healthcare Conference', 'Exploring artificial intelligence applications in medical fields', '2025-10-05 09:00:00', 'Oxford', 1, 1, 350),
-('Classical Music Concert', 'An evening with the London Philharmonic Orchestra', '2025-07-15 19:30:00', 'Liverpool', 1, 5, 600),
-('Digital Marketing Bootcamp', 'Intensive two-day course on modern marketing strategies', '2025-08-22 09:00:00', 'Manchester', 1, 2, 40),
-('Yoga Retreat Weekend', 'Rejuvenate with yoga sessions and wellness activities', '2025-09-18 16:00:00', 'Lake District', 1, 9, 35),
-('Cybersecurity Summit', 'Industry experts discuss the latest in security practices', '2025-07-05 10:00:00', 'Glasgow', 1, 1, 300),
-('Street Food Festival', 'Celebrating global cuisines with local food trucks', '2025-08-15 11:00:00', 'Leeds', 1, 3, 1500),
-('Game Development Convention', 'For developers and gaming enthusiasts', '2025-09-25 09:00:00', 'Birmingham', 1, 4, 700),
-('Science Fiction Book Club', 'Discussing this month\'s selected novel', '2025-07-18 18:00:00', 'Sheffield', 1, 8, 30),
-('Salsa Dancing Workshop', 'Learn Latin dance moves for beginners', '2025-08-30 19:00:00', 'Newcastle', 1, 3, 50),
-('Investment Seminar', 'Financial experts share market insights', '2025-07-12 14:00:00', 'Edinburgh', 1, 8, 100),
-('Documentary Film Festival', 'Screening of award-winning documentaries', '2025-08-08 13:00:00', 'Cardiff', 1, 4, 250),
-('Mountaineering Workshop', 'Learn essential climbing skills for beginners', '2025-09-05 08:00:00', 'Snowdonia', 1, 6, 20),
-('Blockchain Technology Conference', 'Exploring applications beyond cryptocurrency', '2025-07-30 09:30:00', 'Belfast', 1, 1, 400),
-('Farmers Market', 'Local produce and handcrafted goods', '2025-08-18 08:00:00', 'York', 1, 3, 300),
-('Comedy Night', 'Stand-up performances from top comedians', '2025-07-25 20:00:00', 'Nottingham', 1, 9, 200),
-('Renewable Energy Symposium', 'Discussing sustainable power solutions', '2025-09-15 10:00:00', 'Aberdeen', 1, 1, 350);
+-- Insert events
+INSERT INTO event (name, description, event_date, location, created_by, event_type_id, capacity, registration_required, ticket_price) VALUES
+('Tech Conference 2025', 'Annual technology conference featuring the latest innovations and trends', '2025-06-15 09:00:00', 'Convention Center, Downtown', 1, 1, 500, FALSE, 0),
+('Jazz Night', 'An evening of smooth jazz music with local artists', '2025-04-20 20:00:00', 'Blue Note Club', 2, 3, 100, FALSE, 0),
+('Web Development Workshop', 'Learn the basics of HTML, CSS, and JavaScript', '2025-05-10 13:00:00', 'Tech Hub Coworking Space', 1, 2, 30, TRUE, 99.99),
+('Networking Mixer', 'Connect with professionals in your industry', '2025-04-25 18:00:00', 'Grand Hotel Rooftop', 3, 4, 75, FALSE, 0),
+('Charity Fun Run', '5K run to raise funds for local children\'s hospital', '2025-05-30 08:00:00', 'City Park', 4, 5, 200, TRUE, 25.00),
+('Art Exhibition Opening', 'Opening reception for new contemporary art exhibit', '2025-05-05 19:00:00', 'Modern Art Gallery', 3, 6, 120, FALSE, 0),
+('Mobile App Development Seminar', 'Industry experts sharing insights on mobile app development', '2025-06-05 10:00:00', 'Innovation Center', 1, 2, 50, TRUE, 149.99),
+('Summer Social Barbecue', 'Annual summer barbecue and social gathering', '2025-07-04 12:00:00', 'Riverside Park', 2, 4, 150, FALSE, 0),
+('Advanced AI Conference', 'Exploring cutting-edge developments in artificial intelligence', '2025-09-15 09:00:00', 'Tech Innovation Center', 5, 1, 300, TRUE, 299.99),
+('Global Climate Summit', 'International conference on environmental sustainability', '2025-10-22 10:00:00', 'Convention Center', 6, 1, 500, TRUE, 199.50);
+
+-- Insert RSVPs
+INSERT INTO rsvp (user_id, event_id, status, responded_at) VALUES
+(2, 1, 'attending', NOW()),
+(3, 1, 'attending', NOW()),
+(4, 1, 'attending', NOW()),
+(2, 3, 'attending', NOW()),
+(3, 2, 'attending', NOW()),
+(4, 4, 'attending', NOW()),
+(2, 5, 'attending', NOW()),
+(3, 6, 'attending', NOW()),
+(5, 7, 'attending', NOW()),
+(6, 7, 'attending', NOW()),
+(1, 8, 'attending', NOW()),
+(2, 8, 'attending', NOW()),
+(3, 4, 'attending', NOW()),
+(4, 5, 'attending', NOW()),
+(5, 6, 'attending', NOW()),
+(6, 2, 'attending', NOW()),
+(7, 1, 'attending', NOW()),
+(8, 3, 'attending', NOW()),
+(1, 4, 'attending', NOW()),
+(2, 6, 'attending', NOW()),
+(3, 5, 'attending', NOW()),
+(4, 7, 'attending', NOW()),
+(5, 2, 'attending', NOW()),
+(6, 5, 'attending', NOW());
+
+-- Update attendee counts
+UPDATE event SET attendee_count = (SELECT COUNT(*) FROM rsvp WHERE rsvp.event_id = event.id);
