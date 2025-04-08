@@ -18,7 +18,7 @@ public class EventDAO {
         
         try {
             conn = DBConnectionPool.getConnection();
-            String sql = "INSERT INTO events (name, description, event_date, location, created_by, event_type_id, capacity, created_at, updated_at) " +
+            String sql = "INSERT INTO event (name, description, event_date, location, created_by, event_type_id, capacity, created_at, updated_at) " +
                          "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                          
             pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -80,7 +80,7 @@ public class EventDAO {
         
         try {
             conn = DBConnectionPool.getConnection();
-            String sql = "UPDATE events SET name = ?, description = ?, event_date = ?, location = ?, " +
+            String sql = "UPDATE event SET name = ?, description = ?, event_date = ?, location = ?, " +
                          "event_type_id = ?, capacity = ?, updated_at = ? WHERE id = ?";
                          
             pstmt = conn.prepareStatement(sql);
@@ -122,12 +122,12 @@ public class EventDAO {
         
         try {
             conn = DBConnectionPool.getConnection();
-            String deleteRSVPs = "DELETE FROM rsvps WHERE event_id = ?";
+            String deleteRSVPs = "DELETE FROM rsvp WHERE event_id = ?";
             pstmt = conn.prepareStatement(deleteRSVPs);
             pstmt.setInt(1, eventId);
             pstmt.executeUpdate();
             
-            String deleteEvent = "DELETE FROM events WHERE id = ?";
+            String deleteEvent = "DELETE FROM event WHERE id = ?";
             pstmt = conn.prepareStatement(deleteEvent);
             pstmt.setInt(1, eventId);
             
@@ -145,8 +145,8 @@ public class EventDAO {
         
         try {
             conn = DBConnectionPool.getConnection();
-            String sql = "SELECT e.*, et.name as event_type_name FROM events e " +
-                         "JOIN event_types et ON e.event_type_id = et.id " +
+            String sql = "SELECT e.*, et.name as event_type_name FROM event e " +
+                         "JOIN event_type et ON e.event_type_id = et.id " +
                          "WHERE e.id = ?";
                          
             pstmt = conn.prepareStatement(sql);

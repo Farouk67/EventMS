@@ -20,7 +20,7 @@ public class RSVPDAO {
     }
     
     public RSVP createRSVP(RSVP rsvp) throws SQLException {
-        String sql = "INSERT INTO rsvps (user_id, event_id) VALUES (?, ?)";
+        String sql = "INSERT INTO rsvp (user_id, event_id) VALUES (?, ?)";
         
         try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             statement.setInt(1, rsvp.getUserId());
@@ -45,7 +45,7 @@ public class RSVPDAO {
     }
     
     public void deleteRSVP(int userId, int eventId) throws SQLException {
-        String sql = "DELETE FROM rsvps WHERE user_id = ? AND event_id = ?";
+        String sql = "DELETE FROM rsvp WHERE user_id = ? AND event_id = ?";
         
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, userId);
@@ -55,7 +55,7 @@ public class RSVPDAO {
     }
     
     public boolean hasUserRSVPed(int userId, int eventId) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM rsvps WHERE user_id = ? AND event_id = ?";
+        String sql = "SELECT COUNT(*) FROM rsvp WHERE user_id = ? AND event_id = ?";
         
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, userId);
@@ -72,7 +72,7 @@ public class RSVPDAO {
     
     public List<Integer> getEventIdsByUser(int userId) throws SQLException {
         List<Integer> eventIds = new ArrayList<>();
-        String sql = "SELECT event_id FROM rsvps WHERE user_id = ?";
+        String sql = "SELECT event_id FROM rsvp WHERE user_id = ?";
         
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, userId);
@@ -88,7 +88,7 @@ public class RSVPDAO {
     
     public List<Integer> getUserIdsByEvent(int eventId) throws SQLException {
         List<Integer> userIds = new ArrayList<>();
-        String sql = "SELECT user_id FROM rsvps WHERE event_id = ?";
+        String sql = "SELECT user_id FROM rsvp WHERE event_id = ?";
         
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, eventId);
@@ -103,7 +103,7 @@ public class RSVPDAO {
     }
     
     public int getEventRSVPCount(int eventId) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM rsvps WHERE event_id = ?";
+        String sql = "SELECT COUNT(*) FROM rsvp WHERE event_id = ?";
         
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, eventId);
