@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("Loading upcoming events...");
     const contextPath = '${pageContext.request.contextPath}'; // Evaluate JSP expression once
     
-    fetch(contextPath + '/events/api/upcoming')
+    fetch(contextPath + '/api/events/upcoming')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok: ' + response.status);
@@ -132,25 +132,23 @@ document.addEventListener('DOMContentLoaded', function() {
                             : event.description;
                     }
                     
-                    // Add event card HTML
-                    rowHTML += `
-                        <div class="col">
-                            <div class="card h-100 shadow-sm">
-                                <div class="card-header">
-                                    <h5 class="card-title">${event.name || 'Unnamed Event'}</h5>
-                                    <span class="badge bg-primary">${event.type || 'Event'}</span>
-                                </div>
-                                <div class="card-body">
-                                    <p class="card-text"><i class="bi bi-geo-alt me-2"></i>${event.location || 'TBD'}</p>
-                                    <p class="card-text"><i class="bi bi-calendar me-2"></i>${formattedDate}</p>
-                                    <p class="card-text">${shortDesc}</p>
-                                </div>
-                                <div class="card-footer bg-white">
-                                    <a href="${contextPath}/events/details?id=${event.id}" class="btn btn-primary w-100">View Details</a>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                    // Add event card HTML - Using safe string concatenation to avoid template literal issues
+                    rowHTML += '<div class="col">' +
+                        '<div class="card h-100 shadow-sm">' +
+                            '<div class="card-header">' +
+                                '<h5 class="card-title">' + (event.name || 'Unnamed Event') + '</h5>' +
+                                '<span class="badge bg-primary">' + (event.type || 'Event') + '</span>' +
+                            '</div>' +
+                            '<div class="card-body">' +
+                                '<p class="card-text"><i class="bi bi-geo-alt me-2"></i>' + (event.location || 'TBD') + '</p>' +
+                                '<p class="card-text"><i class="bi bi-calendar me-2"></i>' + formattedDate + '</p>' +
+                                '<p class="card-text">' + shortDesc + '</p>' +
+                            '</div>' +
+                            '<div class="card-footer bg-white">' +
+                                '<a href="' + contextPath + '/events/details?id=' + event.id + '" class="btn btn-primary w-100">View Details</a>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
                 });
                 
                 rowHTML += '</div>';
@@ -165,6 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 '<div class="alert alert-danger">Failed to load upcoming events. Please try again later.</div>';
         });
 });
+</script>
 </script>
 
 <jsp:include page="/WEB-INF/jsp/common/footer.jsp" />
