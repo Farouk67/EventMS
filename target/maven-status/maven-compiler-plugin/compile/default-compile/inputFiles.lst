@@ -6,6 +6,7 @@ c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\d
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\service\EventService.java
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\controller\SearchController.java
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\dao\RSVPDAO.java
+c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\service\MLService.java
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\util\DatabaseUtil.java
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\service\ServiceFactory.java
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\ml\FeatureExtractor.java
@@ -28,3 +29,4 @@ c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\c
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\service\RSVPService.java
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\repository\EventRepository.java
 c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\ml\EventPredictor.java
+c:\Users\DavidAkim\OneDrive\Desktop\Coursework\emma_ems\src\main\java\com\emma\ml\ModelInitializer.java

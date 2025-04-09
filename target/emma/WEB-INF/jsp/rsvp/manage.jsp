@@ -19,14 +19,18 @@
         </div>
         
         <div class="attendance-graph">
-                            <%
-                    String progressColor = "bg-success";
-                    if (percentage < 50) {
-                        progressColor = "bg-warning";
-                    } else if (percentage < 25) {
-                        progressColor = "bg-danger";
-                    }
-                %>
+            <% 
+            int attendeeCount = ((com.emma.model.Event)request.getAttribute("event")).getAttendeeCount();
+            int capacity = ((com.emma.model.Event)request.getAttribute("event")).getCapacity();
+            int percentage = (capacity > 0) ? (attendeeCount * 100 / capacity) : 0;
+            
+            String progressColor = "bg-success";
+            if (percentage < 50) {
+                progressColor = "bg-warning";
+            } else if (percentage < 25) {
+                progressColor = "bg-danger";
+            }
+             %>
                 <div class="progress">
                     <div class="progress-bar <%= progressColor %>" style="width: <%= percentage %>%"></div>
                 </div>

@@ -101,6 +101,9 @@
                                    onclick="return confirm('Are you sure you want to delete this event?')">
                                     <i class="bi bi-trash me-2"></i>Delete Event
                                 </a>
+                                <a href="${pageContext.request.contextPath}/rsvp/manage?eventId=${event.id}" class="btn btn-primary">
+                                    <i class="bi bi-pencil me-2"></i>Manage RSVPs
+                                </a>
                             </div>
                         </c:when>
                         <c:when test="${not empty sessionScope.userId}">

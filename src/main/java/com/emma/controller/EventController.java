@@ -54,41 +54,45 @@ public class EventController extends HttpServlet {
             if (action == null) {
                 listEvents(request, response);
             } else {
-                switch (action) {
-                    case "/list":
-                        listEvents(request, response);
-                        break;
-                    case "/new":
-                        showNewForm(request, response);
-                        break;
-                    case "/insert":
-                        insertEvent(request, response);
-                        break;
-                    case "/delete":
-                        deleteEvent(request, response);
-                        break;
-                    case "/edit":
-                        showEditForm(request, response);
-                        break;
-                    case "/update":
-                        updateEvent(request, response);
-                        break;
-                    case "/details":
-                        showEventDetails(request, response);
-                        break;
-                    case "/byType":
-                        listEventsByType(request, response);
-                        break;
-                    case "/api/upcoming":
-                        getUpcomingEvents(request, response);
-                        break;
-                    case "/test":
-                        testEndpoint(request, response);
-                        break;
-                    default:
-                        listEvents(request, response);
-                        break;
-                }
+                // Update the switch statement in doGet to include the new endpoint
+switch (action) {
+    case "/list":
+        listEvents(request, response);
+        break;
+    case "/new":
+        showNewForm(request, response);
+        break;
+    case "/insert":
+        insertEvent(request, response);
+        break;
+    case "/delete":
+        deleteEvent(request, response);
+        break;
+    case "/edit":
+        showEditForm(request, response);
+        break;
+    case "/update":
+        updateEvent(request, response);
+        break;
+    case "/details":
+        showEventDetails(request, response);
+        break;
+    case "/byType":
+        listEventsByType(request, response);
+        break;
+    case "/api/upcoming":
+        getUpcomingEvents(request, response);
+        break;
+    case "/predict-type":
+        predictEventType(request, response);
+        break;
+    case "/test":
+        testEndpoint(request, response);
+        break;
+    default:
+        listEvents(request, response);
+        break;
+}
             }
         } catch (Exception ex) {
             // Log the exception
@@ -390,6 +394,7 @@ public class EventController extends HttpServlet {
         sdf.parse(dateStr);
     }
     
+    
     /**
      * Helper method to handle errors in a consistent way
      */
@@ -421,4 +426,38 @@ public class EventController extends HttpServlet {
         // Forward to the appropriate error page
         dispatcher.forward(request, response);
     }
+    private void predictEventType(HttpServletRequest request, HttpServletResponse response) 
+        throws ServletException, IOException {
+    try {
+        // Get form parameters
+        String name = request.getParameter("name");
+        String description = request.getParameter("description");
+        String location = request.getParameter("location");
+        
+        System.out.println("Predicting event type for - Name: " + name + ", Location: " + location);
+        
+        // Create temporary event
+        Event tempEvent = new Event();
+        tempEvent.setName(name);
+        tempEvent.setDescription(description);
+        tempEvent.setLocation(location);
+        
+        // Get prediction using the EventService
+        String predictedType = eventService.getRecommendedEventType(tempEvent);
+        
+        // Return JSON response
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{\"predictedType\": \"" + predictedType + "\"}");
+    } catch (Exception e) {
+        System.err.println("Error in predictEventType: " + e.getMessage());
+        e.printStackTrace();
+        
+        // Return error JSON
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{\"error\": \"Failed to predict event type\", \"message\": \"" + e.getMessage() + "\"}");
+    }
+}
+
 }

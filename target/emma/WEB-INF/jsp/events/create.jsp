@@ -18,33 +18,24 @@
                     <form action="${pageContext.request.contextPath}/events/insert" method="post" id="eventForm">
                         <div class="mb-3">
                             <label for="name" class="form-label">Event Name <span class="text-danger">*</span></label>
-                            <input type="text" id="name" name="name" class="form-control" required>
+                            <input type="text" id="name" name="name" class="form-control" required onblur="updatePrediction()">
                         </div>
                         
                         <div class="mb-3">
                             <label for="type" class="form-label">Event Type <span class="text-danger">*</span></label>
-                            <select id="type" name="type" class="form-select" required>
-                                <option value="">Select Event Type</option>
-                                <c:choose>
-                                    <c:when test="${not empty eventTypes}">
-                                        <c:forEach var="type" items="${eventTypes}">
-                                            <option value="${type}">${type}</option>
-                                        </c:forEach>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <!-- Fallback options if event types aren't loaded -->
-                                        <option value="Conference">Conference</option>
-                                        <option value="Workshop">Workshop</option>
-                                        <option value="Seminar">Seminar</option>
-                                        <option value="Party">Party</option>
-                                        <option value="Concert">Concert</option>
-                                        <option value="Exhibition">Exhibition</option>
-                                        <option value="Sports">Sports</option>
-                                        <option value="Social">Social</option>
-                                        <option value="Other">Other</option>
-                                    </c:otherwise>
-                                </c:choose>
-                            </select>
+                            <div class="input-group">
+                                <select id="type" name="type" class="form-select">
+                                    <option value="">Select Event Type</option>
+                                    <c:forEach var="type" items="${eventTypes}">
+                                        <option value="${type}">${type}</option>
+                                    </c:forEach>
+                                </select>
+                                <button type="button" class="btn btn-outline-secondary" id="predictBtn" 
+                                        onclick="predictEventType()">Predict Type</button>
+                            </div>
+                            <div id="typePrediction" class="form-text text-info mt-1" style="display: none;">
+                                <i class="bi bi-magic"></i> ML prediction: <span id="predictedType"></span>
+                            </div>
                         </div>
                         
                         <div class="mb-3">
@@ -54,7 +45,7 @@
                         
                         <div class="mb-3">
                             <label for="location" class="form-label">Location <span class="text-danger">*</span></label>
-                            <input type="text" id="location" name="location" class="form-control" required>
+                            <input type="text" id="location" name="location" class="form-control" required onblur="updatePrediction()">
                         </div>
                         
                         <div class="mb-3">
@@ -64,7 +55,7 @@
                         
                         <div class="mb-3">
                             <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
-                            <textarea id="description" name="description" class="form-control" rows="5" required></textarea>
+                            <textarea id="description" name="description" class="form-control" rows="5" required onblur="updatePrediction()"></textarea>
                         </div>
                         
                         <div class="d-flex justify-content-between">
@@ -79,56 +70,87 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const eventForm = document.getElementById('eventForm');
+let predictionReady = false;
+
+// Function to check if prediction can be made
+function updatePrediction() {
+    const name = document.getElementById('name').value;
+    const description = document.getElementById('description').value;
+    const location = document.getElementById('location').value;
     
-    eventForm.addEventListener('submit', function(event) {
-        // Basic form validation
-        const name = document.getElementById('name').value.trim();
-        const type = document.getElementById('type').value;
-        const date = document.getElementById('date').value;
-        const location = document.getElementById('location').value.trim();
-        const capacity = document.getElementById('capacity').value;
-        const description = document.getElementById('description').value.trim();
+    if (name && description && location) {
+        predictionReady = true;
+        document.getElementById('predictBtn').classList.remove('btn-outline-secondary');
+        document.getElementById('predictBtn').classList.add('btn-info');
+    } else {
+        predictionReady = false;
+        document.getElementById('predictBtn').classList.remove('btn-info');
+        document.getElementById('predictBtn').classList.add('btn-outline-secondary');
+    }
+}
+
+// Function to predict event type
+function predictEventType() {
+    const name = document.getElementById('name').value;
+    const description = document.getElementById('description').value;
+    const location = document.getElementById('location').value;
+    
+    if (!name || !description || !location) {
+        alert("Please fill in name, description, and location fields first");
+        return;
+    }
+    
+    // Show loading indicator
+    document.getElementById('predictedType').textContent = "Predicting...";
+    document.getElementById('typePrediction').style.display = "block";
+    
+    // In a real implementation, this would make an AJAX call to the server
+    // Here we'll simulate the prediction using the existing server logic
+    
+    // Create a hidden form to send data to the server for prediction
+    const form = new FormData();
+    form.append('name', name);
+    form.append('description', description);
+    form.append('location', location);
+    
+    // Send the data to a prediction endpoint
+    fetch('${pageContext.request.contextPath}/events/predict-type', {
+        method: 'POST',
+        body: form
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('predictedType').textContent = data.predictedType;
         
-        let isValid = true;
-        
-        // Check if fields are empty
-        if (!name) {
-            alert('Event name is required');
-            isValid = false;
-        } else if (!type) {
-            alert('Event type is required');
-            isValid = false;
-        } else if (!date) {
-            alert('Event date is required');
-            isValid = false;
-        } else if (!location) {
-            alert('Event location is required');
-            isValid = false;
-        } else if (!capacity || capacity < 1) {
-            alert('Event capacity must be at least 1');
-            isValid = false;
-        } else if (!description) {
-            alert('Event description is required');
-            isValid = false;
+        // Select the predicted type in the dropdown
+        const typeSelect = document.getElementById('type');
+        for (let i = 0; i < typeSelect.options.length; i++) {
+            if (typeSelect.options[i].value === data.predictedType) {
+                typeSelect.selectedIndex = i;
+                break;
+            }
         }
-        
-        // Check if date is in the future
-        const eventDate = new Date(date);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        if (eventDate < today) {
-            alert('Event date must be in the future');
-            isValid = false;
-        }
-        
-        if (!isValid) {
-            event.preventDefault();
-        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('predictedType').textContent = "Prediction failed";
     });
+}
+
+// Standard form validation code
+document.getElementById('eventForm').addEventListener('submit', function(e) {
+    const name = document.getElementById('name').value.trim();
+    const type = document.getElementById('type').value;
+    const date = document.getElementById('date').value;
+    const location = document.getElementById('location').value.trim();
+    const capacity = document.getElementById('capacity').value;
+    const description = document.getElementById('description').value.trim();
+    
+    if (!name || !date || !location || !capacity || !description) {
+        e.preventDefault();
+        alert('Please fill in all required fields');
+    }
 });
 </script>
 
-<jsp:include page="/WEB-INF/jsp/common/footer.jsp" />
+<jsp:include page="../common/footer.jsp" />

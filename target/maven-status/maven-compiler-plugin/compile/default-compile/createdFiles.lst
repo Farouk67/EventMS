@@ -17,6 +17,7 @@ com\emma\dao\EventDAO.class
 com\emma\controller\RSVPController.class
 com\emma\service\RSVPService.class
 com\emma\dao\RSVPDAO.class
+com\emma\ml\ModelInitializer.class
 com\emma\filters\DebugFilter.class
 com\emma\service\UserService.class
 com\emma\dao\EventTypeDAO.class
@@ -28,3 +29,4 @@ com\emma\repository\RSVPRepository.class
 com\emma\ml\FeatureExtractor.class
 com\emma\util\DatabaseInitializer.class
 com\emma\filters\AuthenticationFilter.class
+com\emma\service\MLService.class

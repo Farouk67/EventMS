@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import com.emma.model.Event;
 import com.emma.repository.EventRepository;
+import com.emma.ml.EventPredictor;
 
 /**
  * Service class for handling Event-related operations
@@ -18,6 +19,7 @@ public class EventService {
     // Repositories for database operations
     private final EventRepository eventRepository;
     private RSVPService rsvpService; // No longer final, will be set after initialization
+    private EventPredictor eventPredictor;// ML service for event type prediction
     
     /**
      * Constructor with explicit dependencies
@@ -26,8 +28,12 @@ public class EventService {
      */
     public EventService(EventRepository eventRepository) {
         this.eventRepository = eventRepository;
+        try {
+            this.eventPredictor = new EventPredictor();
+        } catch (Exception e) {
+            System.err.println("Failed to initialize EventPredictor: " + e.getMessage());
+        }
     }
-    
     /**
      * Set the RSVPService (to be called after initialization)
      * 
@@ -51,32 +57,32 @@ public class EventService {
      * 
      * @return List of event type strings
      */
- 
-public List<String> getAllEventTypes() {
-    List<Event> events = eventRepository.findAll();
-    Set<String> eventTypes = new HashSet<>();
-    
-    for (Event event : events) {
-        if (event.getType() != null && !event.getType().isEmpty()) {
-            eventTypes.add(event.getType());
+    public List<String> getAllEventTypes() {
+        List<Event> events = eventRepository.findAll();
+        Set<String> eventTypes = new HashSet<>();
+        
+        for (Event event : events) {
+            if (event.getType() != null && !event.getType().isEmpty()) {
+                eventTypes.add(event.getType());
+            }
         }
+        
+        // Add default event types if none exist yet
+        if (eventTypes.isEmpty()) {
+            eventTypes.add("Conference");
+            eventTypes.add("Workshop");
+            eventTypes.add("Seminar");
+            eventTypes.add("Party");
+            eventTypes.add("Concert");
+            eventTypes.add("Exhibition");
+            eventTypes.add("Sports");
+            eventTypes.add("Social");
+            eventTypes.add("Other");
+        }
+        
+        return new ArrayList<>(eventTypes);
     }
     
-    // Add default event types if none exist yet
-    if (eventTypes.isEmpty()) {
-        eventTypes.add("Conference");
-        eventTypes.add("Workshop");
-        eventTypes.add("Seminar");
-        eventTypes.add("Party");
-        eventTypes.add("Concert");
-        eventTypes.add("Exhibition");
-        eventTypes.add("Sports");
-        eventTypes.add("Social");
-        eventTypes.add("Other");
-    }
-    
-    return new ArrayList<>(eventTypes);
-}
     /**
      * Filters events by their type
      * 
@@ -112,9 +118,22 @@ public List<String> getAllEventTypes() {
             if (newEvent.getAttendeeCount() == 0) {
                 newEvent.setAttendeeCount(0);
             }
+            
+            // Use ML to predict event type if not provided
             if (newEvent.getType() == null || newEvent.getType().isEmpty()) {
-                newEvent.setType(getRecommendedEventType(newEvent));
-            }
+    if (eventPredictor != null) {
+        try {
+            String predictedType = eventPredictor.predictEventType(newEvent);
+            newEvent.setType(predictedType);
+            System.out.println("ML predicted event type: " + predictedType);
+        } catch (Exception e) {
+            System.err.println("ML prediction failed, using fallback method: " + e.getMessage());
+            newEvent.setType(getRecommendedEventType(newEvent));
+        }
+    } else {
+        newEvent.setType(getRecommendedEventType(newEvent));
+    }
+}
             
             eventRepository.save(newEvent);
         }
@@ -277,7 +296,8 @@ public List<String> getAllEventTypes() {
     }
     
    /**
-     * Recommends an event type based on event details
+     * Recommends an event type based on event details using rule-based approach
+     * This serves as a fallback when ML prediction fails
      * 
      * @param event The event to analyze
      * @return Recommended event type
@@ -305,4 +325,48 @@ public List<String> getAllEventTypes() {
             return "Other";
         }
     }
+    
+    /**
+ * Uses machine learning to get detailed prediction probabilities for an event
+ * 
+ * @param event The event to analyze
+ * @return Map of event types to probability scores
+ */
+public java.util.Map<String, Double> getEventTypePredictions(Event event) {
+    if (eventPredictor == null) {
+        return new java.util.HashMap<>();
+    }
+    
+    try {
+        double[] probabilities = eventPredictor.predictEventTypeProbabilities(event);
+        String[] eventTypes = eventPredictor.getEventTypeNames();
+        
+        java.util.Map<String, Double> result = new java.util.HashMap<>();
+        for (int i = 0; i < eventTypes.length; i++) {
+            result.put(eventTypes[i], probabilities[i]);
+        }
+        return result;
+    } catch (Exception e) {
+        System.err.println("Error getting prediction details: " + e.getMessage());
+        return new java.util.HashMap<>();
+    }
+}
+
+/**
+ * Retrain the ML model using all events in the system
+ * 
+ * @return true if retraining was successful, false otherwise
+ */
+public boolean retrainMLModel() {
+    try {
+        List<Event> allEvents = getAllEvents();
+        weka.classifiers.Classifier model = com.emma.ml.ModelTrainer.trainModel(allEvents);
+        com.emma.ml.ModelTrainer.saveModel(model);
+        this.eventPredictor = new EventPredictor(model);
+        return true;
+    } catch (Exception e) {
+        System.err.println("Error retraining ML model: " + e.getMessage());
+        return false;
+    }
+}
 }
