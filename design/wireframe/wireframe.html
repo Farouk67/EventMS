@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .wireframe {
+            border: 1px solid #ccc;
+            margin-bottom: 30px;
+            padding: 15px;
+        }
+        .wireframe-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .box {
+            border: 1px solid #999;
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #f9f9f9;
+        }
+        .header {
+            background-color: #0074d9;
+            color: white;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .nav {
+            background-color: #f4f4f4;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .nav-item {
+            display: inline-block;
+            margin-right: 10px;
+            text-decoration: underline;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .event-card {
+            border: 1px solid #ddd;
+            width: 30%;
+            margin: 1%;
+            padding: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+        .button {
+            background-color: #0074d9;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            cursor: pointer;
+        }
+        .footer {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Event Management Platform - Wireframes</h1>
+    
+    <!-- Home Page Wireframe -->
+    <div class="wireframe">
+        <div class="wireframe-title">Home Page</div>
+        <div class="header">
+            Emma's Event Management
+            <div style="float: right;">Login | Register</div>
+        </div>
+        <div class="nav">
+            <div class="nav-item">All Events</div>
+            <div class="nav-item">Event Types</div>
+            <div class="nav-item">Search Events</div>
+        </div>
+        <div class="box" style="text-align: center; padding: 30px;">
+            <h2>Welcome to Emma's Event Management</h2>
+            <p>Discover exciting events near you or create your own!</p>
+            <button class="button">Browse Events</button>
+        </div>
+        <div style="margin: 20px 0;">
+            <h3>Discover What We Offer</h3>
+            <div class="container">
+                <div class="box" style="width: 30%;">
+                    <h4>Find Events</h4>
+                    <p>Discover events by category, location, or date that match your interests.</p>
+                </div>
+                <div class="box" style="width: 30%;">
+                    <h4>Create Events</h4>
+                    <p>Host your own events and manage registrations easily.</p>
+                </div>
+                <div class="box" style="width: 30%;">
+                    <h4>RSVP</h4>
+                    <p>Quickly respond to event invitations and keep track of your schedule.</p>
+                </div>
+            </div>
+        </div>
+        <div>
+            <h3>Upcoming Events</h3>
+            <div class="container">
+                <div class="event-card">Event 1</div>
+                <div class="event-card">Event 2</div>
+                <div class="event-card">Event 3</div>
+            </div>
+        </div>
+        <div class="footer">
+            <div>Emma's Event Management</div>
+            <div>Copyright 2025</div>
+        </div>
+    </div>
+    
+    <!-- Event Listing Page Wireframe -->
+    <div class="wireframe">
+        <div class="wireframe-title">Event Listing Page</div>
+        <div class="header">
+            Emma's Event Management
+            <div style="float: right;">Welcome, User | Logout</div>
+        </div>
+        <div class="nav">
+            <div class="nav-item">All Events</div>
+            <div class="nav-item">Event Types</div>
+            <div class="nav-item">Search Events</div>
+            <div class="nav-item">Create Event</div>
+            <div class="nav-item">My Events</div>
+            <div class="nav-item">My RSVPs</div>
+            <div class="nav-item">ML Dashboard</div>
+        </div>
+        <div style="margin-bottom: 15px;">
+            <h2>All Events</h2>
+            <div style="float: left; width: 20%;">
+                <div class="box">
+                    <h4>Event Types</h4>
+                    <div>All Events</div>
+                    <div>Social</div>
+                    <div>Seminar</div>
+                    <div>Party</div>
+                    <div>Workshop</div>
+                    <div>Conference</div>
+                    <div>Concert</div>
+                    <div>Exhibition</div>
+                    <div>Sports</div>
+                </div>
+            </div>
+            <div style="float: right; width: 78%;">
+                <div class="container">
+                    <div class="event-card">
+                        <h4>Tech Conference 2025</h4>
+                        <div>Date: June 15, 2025</div>
+                        <div>Location: Convention Center</div>
+                        <div>6/10 attendees</div>
+                        <button class="button">View Details</button>
+                    </div>
+                    <div class="event-card">
+                        <h4>Jazz Night</h4>
+                        <div>Date: April 20, 2025</div>
+                        <div>Location: Blue Note Club</div>
+                        <div>5/100 attendees</div>
+                        <button class="button">View Details</button>
+                    </div>
+                    <div class="event-card">
+                        <h4>Web Development Workshop</h4>
+                        <div>Date: May 10, 2025</div>
+                        <div>Location: Tech Hub</div>
+                        <div>2/30 attendees</div>
+                        <button class="button">View Details</button>
+                    </div>
+                    <!-- More event cards would be here -->
+                </div>
+            </div>
+            <div style="clear: both;"></div>
+        </div>
+        <div class="footer">
+            <div>Emma's Event Management</div>
+            <div>Copyright 2025</div>
+        </div>
+    </div>
+    
+    <!-- Create Event Wireframe -->
+    <div class="wireframe">
+        <div class="wireframe-title">Create Event Page</div>
+        <div class="header">
+            Emma's Event Management
+            <div style="float: right;">Welcome, User | Logout</div>
+        </div>
+        <div class="nav">
+            <div class="nav-item">All Events</div>
+            <div class="nav-item">Event Types</div>
+            <div class="nav-item">Search Events</div>
+            <div class="nav-item">Create Event</div>
+            <div class="nav-item">My Events</div>
+            <div class="nav-item">My RSVPs</div>
+        </div>
+        <div>
+            <h2>Create New Event</h2>
+            <div class="box">
+                <div class="form-group">
+                    <div class="label">Event Name *</div>
+                    <input class="input" type="text" placeholder="Enter event name">
+                </div>
+                <div class="form-group">
+                    <div class="label">Event Type *</div>
+                    <select class="input">
+                        <option>Select Event Type</option>
+                        <option>Conference</option>
+                        <option>Workshop</option>
+                        <option>Party</option>
+                        <option>Wedding</option>
+                        <option>Exhibition</option>
+                        <option>Concert</option>
+                        <option>Sports</option>
+                        <option>Social</option>
+                        <option>Seminar</option>
+                    </select>
+                    <button class="button" style="margin-top: 5px;">Predict Type</button>
+                </div>
+                <div class="form-group">
+                    <div class="label">Event Date *</div>
+                    <input class="input" type="text" placeholder="dd/mm/yyyy">
+                </div>
+                <div class="form-group">
+                    <div class="label">Location *</div>
+                    <input class="input" type="text" placeholder="Enter location">
+                </div>
+                <div class="form-group">
+                    <div class="label">Capacity *</div>
+                    <input class="input" type="number" placeholder="Enter maximum attendees">
+                </div>
+                <div class="form-group">
+                    <div class="label">Description *</div>
+                    <textarea class="input" rows="5" placeholder="Enter event description"></textarea>
+                </div>
+                <div>
+                    <button class="button">Create Event</button>
+                    <button style="margin-left: 10px;">Cancel</button>
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <div>Emma's Event Management</div>
+            <div>Copyright 2025</div>
+        </div>
+    </div>
+    
+    <!-- ML Dashboard Wireframe -->
+    <div class="wireframe">
+        <div class="wireframe-title">ML Dashboard Page</div>
+        <div class="header">
+            Emma's Event Management
+            <div style="float: right;">Welcome, Admin | Logout</div>
+        </div>
+        <div class="nav">
+            <div class="nav-item">All Events</div>
+            <div class="nav-item">Search Events</div>
+            <div class="nav-item">Create Event</div>
+            <div class="nav-item">My Events</div>
+            <div class="nav-item">My RSVPs</div>
+            <div class="nav-item">ML Dashboard</div>
+        </div>
+        <div>
+            <h2>ML Model Management</h2>
+            <div class="box">
+                <h3>Event Type Prediction Model</h3>
+                <div class="form-group">
+                    <div class="label">Current Model:</div>
+                    <div>Accuracy: 87.5%</div>
+                    <div>Total Training Examples: 100</div>
+                    <div>Last Trained: 2025-04-10 12:55</div>
+                </div>
+                <div class="form-group">
+                    <div class="label">Training Options:</div>
+                    <div>Number of training examples:</div>
+                    <input class="input" type="number" value="100">
+                </div>
+                <div>
+                    <button class="button">Train New Model</button>
+                </div>
+                <hr/>
+                <div class="form-group">
+                    <h3>Test Prediction:</h3>
+                    <div class="label">Event Name:</div>
+                    <input class="input" type="text" placeholder="e.g., AI Summit 2025">
+                    <div class="label">Description:</div>
+                    <textarea class="input" rows="3" placeholder="Enter event description"></textarea>
+                    <div class="label">Location:</div>
+                    <input class="input" type="text" placeholder="e.g., London">
+                </div>
+                <div>
+                    <button class="button">Predict Type</button>
+                </div>
+                <div class="box" style="margin-top: 10px; background-color: #e6f7ff;">
+                    <div>Predicted Type: Conference</div>
+                    <div>ML Prediction: Conference</div>
+                    <div>Rule-based Prediction: Conference</div>
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <div>Emma's Event Management</div>
+            <div>Copyright 2025</div>
+        </div>
+    </div>
+</body>
+</html>
