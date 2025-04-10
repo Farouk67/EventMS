@@ -49,7 +49,7 @@ public class ModelTrainer {
      */
     public static Classifier createDefaultModel() throws Exception {
         // Generate synthetic training data
-        List<Event> trainingEvents = generateSyntheticTrainingData(100);
+        List<Event> trainingEvents = generateTrainingData(100);
         
         // Train a model on this data
         return trainModel(trainingEvents);
@@ -153,155 +153,378 @@ public class ModelTrainer {
     }
     
     /**
-     * Generates synthetic training data based on the assignment brief examples
+     * Generates training data for the ML model with balanced class distribution
      * 
-     * @param targetSize The target number of events to generate
-     * @return A list of events with balanced event types
+     * @param count Number of training examples to generate
+     * @return List of events with balanced class distribution
      */
-    public static List<Event> generateSyntheticTrainingData(int targetSize) {
-        LOGGER.info("Generating synthetic training data, target size: " + targetSize);
-        List<Event> syntheticEvents = new ArrayList<>();
+    public static List<Event> generateTrainingData(int count) {
+        LOGGER.info("Generating " + count + " training examples");
+        List<Event> events = new ArrayList<>();
         
-        // Sample data from the assignment brief
-        addSampleEvents(syntheticEvents);
+        // Start with sample data from assignment brief
+        addSampleEventsFromBrief(events);
         
-        // Generate additional events to reach the target size
-        Random random = new Random(42); // Fixed seed for reproducibility
-        String[] eventTypes = {"Conference", "Wedding", "Workshop", "Party", "Exhibition", "Concert", "Sports", "Social", "Seminar"};
-        String[] locations = {"London", "Manchester", "Birmingham", "Edinburgh", "Glasgow", "Liverpool", "Leeds", "Bristol", "Cardiff", "Newcastle", "Sheffield", "Coventry"};
+        // Define the event types to generate
+        String[] types = {"Conference", "Workshop", "Party", "Wedding", "Exhibition", 
+                          "Concert", "Sports", "Social", "Seminar"};
         
-        // Event description templates for each type
-        Map<String, List<String>> descriptionTemplates = new HashMap<>();
-        descriptionTemplates.put("Conference", Arrays.asList(
-            "Annual {topic} conference for industry professionals",
-            "International summit on {topic} with expert speakers",
-            "Professional gathering focused on {topic} trends and innovations",
-            "{topic} conference featuring keynote speakers and workshops"
-        ));
+        // Calculate how many of each type we need for balanced distribution
+        int perType = Math.max(5, (count - events.size()) / types.length);
         
-        descriptionTemplates.put("Wedding", Arrays.asList(
-            "Beautiful {setting} wedding celebration",
-            "Intimate family wedding ceremony and reception",
-            "Traditional wedding with reception to follow",
-            "Garden wedding celebration with close friends and family"
-        ));
-        
-        descriptionTemplates.put("Workshop", Arrays.asList(
-            "Hands-on learning workshop for {topic} skills",
-            "Practical {topic} workshop for beginners",
-            "Interactive {topic} training session with industry experts",
-            "Skill-building workshop focusing on {topic} techniques"
-        ));
-        
-        descriptionTemplates.put("Party", Arrays.asList(
-            "{occasion} celebration with food and entertainment",
-            "Festive {occasion} party with music and dancing",
-            "Social gathering to celebrate {occasion}",
-            "Fun {occasion} party with games and activities"
-        ));
-        
-        // Topics, settings, and occasions for templates
-        String[] topics = {"technology", "AI", "finance", "marketing", "healthcare", "education", "sustainability", "cybersecurity", "blockchain", "data science"};
-        String[] settings = {"garden", "beach", "countryside", "urban", "historic", "modern", "rustic", "elegant"};
-        String[] occasions = {"graduation", "birthday", "anniversary", "holiday", "New Year", "Christmas", "Halloween", "summer", "retirement"};
-        
-        // Generate events until we reach the target size
-        while (syntheticEvents.size() < targetSize) {
-            try {
-                // Select random event type
-                String eventType = eventTypes[random.nextInt(eventTypes.length)];
-                
-                // Create a new event
-                Event event = new Event();
-                event.setId(syntheticEvents.size() + 100); // Arbitrary ID
-                
-                // Set event name
-                event.setName("Sample " + eventType + " " + (syntheticEvents.size() + 1));
-                
-                // Set location
-                event.setLocation(locations[random.nextInt(locations.length)]);
-                
-                // Set event date (within next 2 years)
-                Calendar cal = Calendar.getInstance();
-                cal.add(Calendar.DAY_OF_YEAR, random.nextInt(730)); // Random date within next 2 years
-                event.setEventDate(cal.getTime());
-                
-                // Set description based on templates
-                List<String> templates = descriptionTemplates.get(eventType);
-                if (templates != null && !templates.isEmpty()) {
-                    String template = templates.get(random.nextInt(templates.size()));
-                    
-                    // Replace placeholders
-                    if (template.contains("{topic}")) {
-                        template = template.replace("{topic}", topics[random.nextInt(topics.length)]);
-                    }
-                    if (template.contains("{setting}")) {
-                        template = template.replace("{setting}", settings[random.nextInt(settings.length)]);
-                    }
-                    if (template.contains("{occasion}")) {
-                        template = template.replace("{occasion}", occasions[random.nextInt(occasions.length)]);
-                    }
-                    
-                    event.setDescription(template);
-                } else {
-                    event.setDescription("Sample " + eventType + " description");
-                }
-                
-                // Set event type
-                event.setType(eventType);
-                
-                // Add to the list
-                syntheticEvents.add(event);
-            } catch (Exception e) {
-                LOGGER.log(Level.WARNING, "Error generating synthetic event", e);
+        // Generate events for each type
+        for (String type : types) {
+            int typeCount = countEventsByType(events, type);
+            int needed = perType - typeCount;
+            
+            for (int i = 0; i < needed && events.size() < count; i++) {
+                events.add(generateEventOfType(type, events.size() + 1));
             }
         }
         
-        LOGGER.info("Generated " + syntheticEvents.size() + " synthetic events for training");
-        return syntheticEvents;
+        // If we still need more events, add random ones
+        Random random = new Random();
+        while (events.size() < count) {
+            String type = types[random.nextInt(types.length)];
+            events.add(generateEventOfType(type, events.size() + 1));
+        }
+        
+        LOGGER.info("Generated " + events.size() + " training examples");
+        return events;
     }
     
     /**
-     * Adds the sample events from the assignment brief to the list
-     * 
-     * @param events The list to add events to
+     * Count events of a specific type in the list
      */
-    private static void addSampleEvents(List<Event> events) {
+    private static int countEventsByType(List<Event> events, String type) {
+        int count = 0;
+        for (Event event : events) {
+            if (type.equals(event.getType())) {
+                count++;
+            }
+        }
+        return count;
+    }
+    
+    /**
+     * Generate an event of the specified type
+     */
+    private static Event generateEventOfType(String type, int id) {
+        Event event = new Event();
+        event.setId(id);
+        event.setType(type);
+        
+        Random random = new Random();
+        
+        // Set location from a list of common locations
+        String[] locations = {"London", "Manchester", "Birmingham", "Edinburgh", "Coventry", 
+                             "Leeds", "Cardiff", "Glasgow", "Liverpool", "Bristol", "Oxford",
+                             "Cambridge", "Nottingham", "Sheffield", "Newcastle"};
+        event.setLocation(locations[random.nextInt(locations.length)]);
+        
+        // Set date within next 2 years
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_YEAR, random.nextInt(730)); // Random date within next 2 years
+        event.setEventDate(cal.getTime());
+        
+        // Set capacity
+        event.setCapacity(10 + random.nextInt(490)); // Capacity between 10 and 500
+        
+        // Set name and description based on type
+        switch (type) {
+            case "Conference":
+                event.setName(generateConferenceName());
+                event.setDescription(generateConferenceDescription());
+                break;
+            case "Workshop":
+                event.setName(generateWorkshopName());
+                event.setDescription(generateWorkshopDescription());
+                break;
+            case "Party":
+                event.setName(generatePartyName());
+                event.setDescription(generatePartyDescription());
+                break;
+            case "Wedding":
+                event.setName(generateWeddingName());
+                event.setDescription(generateWeddingDescription());
+                break;
+            case "Exhibition":
+                event.setName(generateExhibitionName());
+                event.setDescription(generateExhibitionDescription());
+                break;
+            case "Concert":
+                event.setName(generateConcertName());
+                event.setDescription(generateConcertDescription());
+                break;
+            case "Sports":
+                event.setName(generateSportsName());
+                event.setDescription(generateSportsDescription());
+                break;
+            case "Social":
+                event.setName(generateSocialName());
+                event.setDescription(generateSocialDescription());
+                break;
+            case "Seminar":
+                event.setName(generateSeminarName());
+                event.setDescription(generateSeminarDescription());
+                break;
+            default:
+                event.setName("Generic Event " + id);
+                event.setDescription("Generic event description");
+        }
+        
+        return event;
+    }
+    
+    // Name generators for each event type
+    private static String generateConferenceName() {
+        String[] prefixes = {"Annual", "International", "Global", "Tech", "Industry", "Innovation"};
+        String[] topics = {"AI", "Technology", "Digital", "Business", "Healthcare", "Science", "Finance"};
+        String[] suffixes = {"Conference", "Summit", "Congress", "Forum", "Symposium", "Convention"};
+        
+        Random r = new Random();
+        return prefixes[r.nextInt(prefixes.length)] + " " + 
+               topics[r.nextInt(topics.length)] + " " + 
+               suffixes[r.nextInt(suffixes.length)] + " " + (2025 + r.nextInt(3));
+    }
+    
+    private static String generateWorkshopName() {
+        String[] prefixes = {"Practical", "Hands-on", "Interactive", "Intensive", "Professional"};
+        String[] topics = {"Programming", "Design", "Marketing", "Leadership", "Data Analysis", 
+                           "Project Management", "Communication"};
+        String[] suffixes = {"Workshop", "Masterclass", "Training", "Bootcamp", "Session"};
+        
+        Random r = new Random();
+        return prefixes[r.nextInt(prefixes.length)] + " " + 
+               topics[r.nextInt(topics.length)] + " " + 
+               suffixes[r.nextInt(suffixes.length)];
+    }
+    
+    private static String generatePartyName() {
+        String[] themes = {"Summer", "Winter", "Holiday", "New Year's", "Halloween", "Christmas", 
+                           "Graduation", "Anniversary", "Birthday"};
+        String[] types = {"Party", "Celebration", "Bash", "Gala", "Mixer", "Fiesta"};
+        
+        Random r = new Random();
+        return themes[r.nextInt(themes.length)] + " " + types[r.nextInt(types.length)];
+    }
+    
+    private static String generateWeddingName() {
+        String[] firstNames1 = {"James", "Sarah", "Michael", "Emma", "David", "Jennifer", "John", "Lisa"};
+        String[] firstNames2 = {"Robert", "Emily", "Thomas", "Rebecca", "Daniel", "Sophie", "William", "Anna"};
+        
+        Random r = new Random();
+        String name1 = firstNames1[r.nextInt(firstNames1.length)];
+        String name2 = firstNames2[r.nextInt(firstNames2.length)];
+        
+        return name1 + " & " + name2 + "'s Wedding";
+    }
+    
+    private static String generateExhibitionName() {
+        String[] themes = {"Modern", "Contemporary", "Classical", "Urban", "Digital", "Traditional", "Interactive"};
+        String[] types = {"Art", "Photography", "Design", "Sculpture", "Fashion", "Technology", "History"};
+        String[] suffixes = {"Exhibition", "Showcase", "Display", "Gallery", "Show"};
+        
+        Random r = new Random();
+        return themes[r.nextInt(themes.length)] + " " + 
+               types[r.nextInt(types.length)] + " " + 
+               suffixes[r.nextInt(suffixes.length)];
+    }
+    
+    private static String generateConcertName() {
+        String[] prefixes = {"Live", "Annual", "Summer", "Winter", "Evening of"};
+        String[] types = {"Jazz", "Rock", "Classical", "Pop", "Electronic", "Folk", "Country"};
+        String[] suffixes = {"Concert", "Music Festival", "Performance", "Tour", "Recital", "Show"};
+        
+        Random r = new Random();
+        return prefixes[r.nextInt(prefixes.length)] + " " + 
+               types[r.nextInt(types.length)] + " " + 
+               suffixes[r.nextInt(suffixes.length)];
+    }
+    
+    private static String generateSportsName() {
+        String[] prefixes = {"Annual", "Championship", "Charity", "Amateur", "Professional"};
+        String[] sports = {"Football", "Basketball", "Tennis", "Golf", "Running", "Swimming", "Cycling"};
+        String[] suffixes = {"Tournament", "Match", "Game", "Competition", "Cup", "Marathon", "Race"};
+        
+        Random r = new Random();
+        return prefixes[r.nextInt(prefixes.length)] + " " + 
+               sports[r.nextInt(sports.length)] + " " + 
+               suffixes[r.nextInt(suffixes.length)];
+    }
+    
+    private static String generateSocialName() {
+        String[] prefixes = {"Community", "Charity", "Networking", "Industry", "Professional"};
+        String[] types = {"Meetup", "Gathering", "Social", "Mixer", "Fundraiser", "Gala"};
+        
+        Random r = new Random();
+        return prefixes[r.nextInt(prefixes.length)] + " " + types[r.nextInt(types.length)];
+    }
+    
+    private static String generateSeminarName() {
+        String[] prefixes = {"Professional", "Expert", "Introduction to", "Advanced", "Practical"};
+        String[] topics = {"Finance", "Marketing", "Leadership", "Management", "Technology", 
+                           "Innovation", "Communication", "Strategy"};
+        String[] suffixes = {"Seminar", "Talk", "Lecture", "Presentation", "Discussion", "Session"};
+        
+        Random r = new Random();
+        return prefixes[r.nextInt(prefixes.length)] + " " + 
+               topics[r.nextInt(topics.length)] + " " + 
+               suffixes[r.nextInt(suffixes.length)];
+    }
+    
+    // Description generators for each event type
+    private static String generateConferenceDescription() {
+        String[] parts = {
+            "Join industry leaders for discussions on the latest trends and innovations.",
+            "A premier gathering of experts sharing insights on cutting-edge developments.",
+            "Network with professionals and discover new opportunities in the field.",
+            "Featuring keynote speakers, panel discussions, and interactive sessions.",
+            "Learn from the best minds in the industry about future directions and challenges."
+        };
+        
+        return parts[new Random().nextInt(parts.length)];
+    }
+    
+    private static String generateWorkshopDescription() {
+        String[] parts = {
+            "Hands-on training session with practical exercises and real-world applications.",
+            "Learn essential skills through interactive activities guided by expert instructors.",
+            "Small group workshop focusing on skill development and immediate application.",
+            "Intensive training designed to improve your capabilities in a supportive environment.",
+            "Practical session where you'll learn by doing with expert guidance."
+        };
+        
+        return parts[new Random().nextInt(parts.length)];
+    }
+    
+    private static String generatePartyDescription() {
+        String[] parts = {
+            "Celebrate with music, food, and entertainment in a festive atmosphere.",
+            "Join us for a night of fun, dancing, and celebration with friends.",
+            "Food, drinks, and entertainment provided for an unforgettable celebration.",
+            "A festive gathering to celebrate and enjoy good company.",
+            "Come and enjoy a night of celebration with great music and atmosphere."
+        };
+        
+        return parts[new Random().nextInt(parts.length)];
+    }
+    
+    private static String generateWeddingDescription() {
+        String[] parts = {
+            "Join us as we celebrate our special day with family and friends.",
+            "A beautiful ceremony followed by reception to celebrate the union.",
+            "We invite you to share in our joy as we begin our journey together.",
+            "An intimate celebration of love with close family and friends.",
+            "Join us for a day of love, joy, and celebration."
+        };
+        
+        return parts[new Random().nextInt(parts.length)];
+    }
+    
+    private static String generateExhibitionDescription() {
+        String[] parts = {
+            "Displaying works from talented artists exploring various themes and techniques.",
+            "Showcasing innovative creations and artistic expressions from around the world.",
+            "An exhibition featuring unique perspectives and creative approaches.",
+            "Come experience thought-provoking works in a carefully curated display.",
+            "A showcase of creativity, innovation, and artistic vision."
+        };
+        
+        return parts[new Random().nextInt(parts.length)];
+    }
+    
+    private static String generateConcertDescription() {
+        String[] parts = {
+            "Live music performance featuring talented musicians and an engaging atmosphere.",
+            "Experience the power of live music in an unforgettable performance.",
+            "Join us for an evening of exceptional music and entertainment.",
+            "A captivating musical experience with remarkable performers.",
+            "Enjoy an evening of music that will move and inspire you."
+        };
+        
+        return parts[new Random().nextInt(parts.length)];
+    }
+    
+    private static String generateSportsDescription() {
+        String[] parts = {
+            "Competitive event showcasing athletic skill and sportsmanship.",
+            "Join us for an exciting display of athletic prowess and team spirit.",
+            "Watch top athletes compete in this thrilling sporting event.",
+            "A celebration of athleticism, competition, and sporting excellence.",
+            "Witness the excitement and drama of competitive sports at its best."
+        };
+        
+        return parts[new Random().nextInt(parts.length)];
+    }
+    
+    private static String generateSocialDescription() {
+        String[] parts = {
+            "An opportunity to connect with like-minded individuals in a relaxed setting.",
+            "Meet new people and build connections in a friendly atmosphere.",
+            "Expand your network and engage in meaningful conversations.",
+            "A social gathering designed to foster connections and community.",
+            "Join us for an evening of networking and relationship building."
+        };
+        
+        return parts[new Random().nextInt(parts.length)];
+    }
+    
+    private static String generateSeminarDescription() {
+        String[] parts = {
+            "Informative session delivering valuable insights and knowledge on the topic.",
+            "Expert-led discussion on key concepts and best practices.",
+            "Learn from industry experts about important principles and applications.",
+            "Focused educational session providing depth and clarity on the subject.",
+            "Gain valuable knowledge from experienced professionals in the field."
+        };
+        
+        return parts[new Random().nextInt(parts.length)];
+    }
+    
+    /**
+     * Adds the sample events from the assignment brief to the training data
+     */
+    private static void addSampleEventsFromBrief(List<Event> events) {
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             
-            // Sample events from the assignment brief
+            // Conference events
             addSampleEvent(events, "AI Summit", "Conference", "London", 
                     dateFormat.parse("2025-02-20"), "AI conference with workshops");
-            
-            addSampleEvent(events, "Sarah & Tom's Wedding", "Wedding", "Manchester", 
-                    dateFormat.parse("2025-03-15"), "Private family wedding");
-            
-            addSampleEvent(events, "Java Programming Workshop", "Workshop", "Coventry", 
-                    dateFormat.parse("2025-01-28"), "Learn Java Basics");
-            
-            addSampleEvent(events, "New Year Bash", "Party", "Birmingham", 
-                    dateFormat.parse("2025-12-31"), "Celebrate the New Year");
             
             addSampleEvent(events, "Tech Innovations", "Conference", "Edinburgh", 
                     dateFormat.parse("2025-06-10"), "Showcase of tech trends");
             
-            addSampleEvent(events, "Data Science Bootcamp", "Workshop", "London", 
-                    dateFormat.parse("2025-03-05"), "Intro to data science techniques");
+            addSampleEvent(events, "Healthcare Tech", "Conference", "Glasgow", 
+                    dateFormat.parse("2025-11-02"), "Innovations in healthcare tech");
+            
+            // Wedding events
+            addSampleEvent(events, "Sarah & Tom's Wedding", "Wedding", "Manchester", 
+                    dateFormat.parse("2025-03-15"), "Private family wedding");
             
             addSampleEvent(events, "Emily & Jack's Wedding", "Wedding", "Leeds", 
                     dateFormat.parse("2025-04-18"), "Garden wedding celebration");
             
-            addSampleEvent(events, "Graduation Party", "Party", "Cardiff", 
-                    dateFormat.parse("2025-07-01"), "Celebrate with graduates");
+            // Workshop events
+            addSampleEvent(events, "Java Programming Workshop", "Workshop", "Coventry", 
+                    dateFormat.parse("2025-01-28"), "Learn Java Basics");
             
-            addSampleEvent(events, "Healthcare Tech", "Conference", "Glasgow", 
-                    dateFormat.parse("2025-11-02"), "Innovations in healthcare tech");
+            addSampleEvent(events, "Data Science Bootcamp", "Workshop", "London", 
+                    dateFormat.parse("2025-03-05"), "Intro to data science techniques");
             
             addSampleEvent(events, "Cybersecurity Basics", "Workshop", "Liverpool", 
                     dateFormat.parse("2025-08-15"), "Intro to online safety");
+            
+            // Party events
+            addSampleEvent(events, "New Year Bash", "Party", "Birmingham", 
+                    dateFormat.parse("2025-12-31"), "Celebrate the New Year");
+            
+            addSampleEvent(events, "Graduation Party", "Party", "Cardiff", 
+                    dateFormat.parse("2025-07-01"), "Celebrate with graduates");
+            
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Error adding sample events", e);
+            LOGGER.log(Level.WARNING, "Error adding sample events from brief", e);
         }
     }
     
@@ -317,6 +540,7 @@ public class ModelTrainer {
         event.setLocation(location);
         event.setEventDate(date);
         event.setDescription(description);
+        event.setCapacity(100);  // Default capacity
         events.add(event);
     }
     
@@ -328,7 +552,7 @@ public class ModelTrainer {
     public static void main(String[] args) {
         try {
             // Generate training data
-            List<Event> trainingData = generateSyntheticTrainingData(100);
+            List<Event> trainingData = generateTrainingData(100);
             
             // Train model
             Classifier model = trainModel(trainingData);

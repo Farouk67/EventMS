@@ -4,6 +4,10 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="contextPath" content="${pageContext.request.contextPath}">
+    <meta name="description" content="Emma's Event Management">
+    <meta name="keywords" content="events, management, RSVP">
+    <meta name="author" content="Farouk">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Emma's Event Management</title>
     

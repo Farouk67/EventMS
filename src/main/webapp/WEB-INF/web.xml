@@ -24,8 +24,17 @@
         <servlet-name>UserController</servlet-name>
         <servlet-class>com.emma.controller.UserController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>AdminController</servlet-name>
+        <servlet-class>com.emma.controller.AdminController</servlet-class>
+    </servlet>
+    
 
     <!-- Servlet Mappings -->
+    <servlet-mapping>
+        <servlet-name>AdminController</servlet-name>
+        <url-pattern>/admin/*</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>EventController</servlet-name>
         <url-pattern>/events/*</url-pattern>

@@ -36,6 +36,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="${pageContext.request.contextPath}/users/myRSVPs">My RSVPs</a>
                     </li>
+                    <c:if test="${sessionScope.userRole eq 'admin'}">
+                    <li class="nav-item">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/admin/ml-dashboard">ML Dashboard</a>
+                    </li>
+                    </c:if>
                 </c:if>
             </ul>
         </div>

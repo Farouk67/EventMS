@@ -27,6 +27,12 @@
       <artifactId>weka-dev</artifactId>
       <version>${weka.version}</version>
     </dependency>
+    <dependency>
+      <groupId>nz.ac.waikato.cms.weka</groupId>
+      <artifactId>weka-stable</artifactId>
+      <version>3.8.6</version>
+  </dependency>
+  
 
     <!-- Apache Commons DBCP for connection pooling -->
     <dependency>

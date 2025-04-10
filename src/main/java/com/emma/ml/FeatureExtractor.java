@@ -39,7 +39,8 @@ public class FeatureExtractor {
     static {
         EVENT_TYPE_KEYWORDS.put("Conference", Arrays.asList(
                 "conference", "summit", "tech", "innovation", "showcase", "trends", 
-                "healthcare", "ai", "technology", "industry", "professional", "symposium"));
+        "healthcare", "ai", "technology", "industry", "professional", "symposium",
+        "forum", "convention", "congress", "meeting", "expo", "talks"));
         
         EVENT_TYPE_KEYWORDS.put("Wedding", Arrays.asList(
                 "wedding", "celebration", "bride", "groom", "ceremony", "reception", 
@@ -63,7 +64,8 @@ public class FeatureExtractor {
         
         EVENT_TYPE_KEYWORDS.put("Sports", Arrays.asList(
                 "sports", "game", "match", "tournament", "competition", "athletic", 
-                "team", "league", "championship", "race", "fitness", "running"));
+        "team", "league", "championship", "race", "fitness", "running",
+        "football", "soccer", "basketball", "baseball", "tennis"));
         
         EVENT_TYPE_KEYWORDS.put("Social", Arrays.asList(
                 "social", "networking", "meetup", "community", "gathering", "mixer", 

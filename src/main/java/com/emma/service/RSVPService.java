@@ -1,5 +1,6 @@
 package com.emma.service;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import com.emma.model.RSVP;
@@ -136,7 +137,9 @@ public class RSVPService {
     public RSVP findRSVPByUserAndEvent(Integer userId, int eventId) {
         return rsvpRepository.findByUserIdAndEventId(userId, eventId).orElse(null);
     }
-    
+    public List<RSVP> getRSVPsByEventId(int eventId) throws SQLException {
+    return rsvpRepository.findByEventId(eventId);
+}
     /**
      * Update an existing RSVP
      * 

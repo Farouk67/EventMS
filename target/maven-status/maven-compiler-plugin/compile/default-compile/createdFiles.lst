@@ -20,6 +20,7 @@ com\emma\dao\RSVPDAO.class
 com\emma\ml\ModelInitializer.class
 com\emma\filters\DebugFilter.class
 com\emma\service\UserService.class
+com\emma\controller\AdminController.class
 com\emma\dao\EventTypeDAO.class
 com\emma\model\Event.class
 com\emma\model\User.class

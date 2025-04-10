@@ -21,9 +21,9 @@
             <div class="col-md-4 mb-3">
                 <h5>Contact Us</h5>
                 <address class="mb-0">
-                    <p><i class="bi bi-envelope me-2"></i>info@emmaevents.com</p>
-                    <p><i class="bi bi-telephone me-2"></i>(123) 456-7890</p>
-                    <p><i class="bi bi-geo-alt me-2"></i>123 Event Street, London, UK</p>
+                    <p><i class="bi bi-envelope me-2"></i>admin@emmaevents.com</p>
+                    <p><i class="bi bi-telephone me-2"></i>(077) 654-3210</p>
+                    <p><i class="bi bi-geo-alt me-2"></i>3 Event Street, Coventry, West Midlands UK</p>
                 </address>
             </div>
         </div>
